@@ -10,7 +10,7 @@
       <li class="grid-item">
         {{ $ratio := site.Params.imageGrid.aspectRatio }}
         <a href="{{ .RelPermalink }}" {{ with $ratio }}style="aspect-ratio: {{ . }}; object-fit: cover;"{{ end }}>
-          <img loading="lazy" decoding="async" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" .Name }}{{ end }}" />
+          <img loading="lazy" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" .Name }}{{ end }}" />
         </a>
       </li>
     {{ end }}

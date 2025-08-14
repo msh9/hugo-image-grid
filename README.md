@@ -42,6 +42,21 @@ Alt text uses the resource title when available, or falls back to the filename (
 - Images are discovered only via page resources: `*.{jpg,jpeg,png,webp,avif,gif,bmp}` (case‑insensitive). No image processing or transforms are performed.
 - Default grid uses CSS Grid; no JS and no external frameworks. If you set `params.imageGrid.aspectRatio`, tiles will apply that `aspect-ratio` and `object-fit: cover`.
 
+### Thumbnails
+
+The theme can use pregenerated thumbnails on the home page and section pages. If pregenerated thumbnail images are not provided then the theme will use the original images as-is. In order to use pregenerated thumbnails please provide two files for each image. One file should be the full size image and the other the thumbnail. The thumbnail image should be identified it's file name; include the word 'thumbnail' prior to the file extension. Here's an example,
+
+```
+/exampleSite/content/myalbum/
+photo1.avif
+photo1.thumbnail.avif
+photo2.webp
+photo3.jpg
+photo3.thumbnail.jpg
+```
+
+In the above example, thumbnail photos will be used for photo1 and photo3. The original file will be used for photo2.
+
 ## Guardrails
 
 - No `.Resize`, `.Fit`, `.Filter`, or any other image processing is used.
