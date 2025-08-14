@@ -40,11 +40,20 @@ Alt text uses the resource title when available, or falls back to the filename (
 ### Image discovery and grid defaults
 
 - Images are discovered only via page resources: `*.{jpg,jpeg,png,webp,avif,gif,bmp}` (case‑insensitive). No image processing or transforms are performed.
-- Default grid uses CSS Grid; no JS and no external frameworks. If you set `params.imageGrid.aspectRatio`, tiles will apply that `aspect-ratio` and `object-fit: cover`.
+- Default grid uses CSS Grid; no JS and no external frameworks. 
 
 ### Thumbnails
 
-The theme can use pregenerated thumbnails on the home page and section pages. If pregenerated thumbnail images are not provided then the theme will use the original images as-is. In order to use pregenerated thumbnails please provide two files for each image. One file should be the full size image and the other the thumbnail. The thumbnail image should be identified it's file name; include the word 'thumbnail' prior to the file extension. Here's an example,
+The theme can use pregenerated thumbnails on the home page and section pages. If pregenerated thumbnails are not provided, the original images are used as-is.
+
+How it works:
+- Provide two files per image within the same bundle: the original and its thumbnail.
+- Name the thumbnail with `.thumbnail.` right before the file extension (case-insensitive match on the word `thumbnail`).
+- Thumbnails can use a different extension than the original.
+- In grids (home/section pages), the tile links to the original image but displays the thumbnail when available.
+- Single pages continue to display the original images; thumbnails are not used on single pages.
+
+Example:
 
 ```
 /exampleSite/content/myalbum/
@@ -55,7 +64,7 @@ photo3.jpg
 photo3.thumbnail.jpg
 ```
 
-In the above example, thumbnail photos will be used for photo1 and photo3. The original file will be used for photo2.
+In the above example, thumbnails are used for photo1 and photo3; the original is used for photo2.
 
 ## Guardrails
 
