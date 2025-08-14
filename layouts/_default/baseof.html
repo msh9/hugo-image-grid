@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ if .Title }}{{ .Title }} · {{ end }}{{ site.Title }}</title>
+    {{- $style := resources.Get "css/theme.css" -}}
+    {{- with $style -}}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" />
+    {{- end -}}
+    {{- with site.Params.description -}}
+    <meta name="description" content="{{ . }}" />
+    {{- end -}}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <h1 class="site-title"><a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a></h1>
+        {{ with site.Params.subtitle }}<p class="site-subtitle">{{ . }}</p>{{ end }}
+      </div>
+    </header>
+    <main class="site-main wrap">
+      {{ block "main" . }}{{ end }}
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        {{ with site.Copyright }}<p>{{ . }}</p>{{ end }}
+      </div>
+    </footer>
+  </body>
+  </html>
+

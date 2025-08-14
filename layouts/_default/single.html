@@ -1,0 +1,18 @@
+{{ define "main" }}
+  {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
+  {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
+
+  {{ $images := .Resources.ByType "image" }}
+  {{ if gt (len $images) 0 }}
+    <ul class="grid" aria-label="Image grid">
+      {{ range $images }}
+        <li class="grid-item">
+          <a href="{{ .RelPermalink }}">
+            <img loading="lazy" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ .Name }}{{ end }}" />
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  {{ end }}
+{{ end }}
+

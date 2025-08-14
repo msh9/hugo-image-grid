@@ -1,0 +1,35 @@
+{{ define "main" }}
+  {{/* For a section, show its images plus descendant page images */}}
+  {{ $scratch := newScratch }}
+  {{ $scratch.Set "images" (slice) }}
+
+  {{ with .Resources.ByType "image" }}
+    {{ $scratch.Add "images" . }}
+  {{ end }}
+
+  {{ range .RegularPagesRecursive }}
+    {{ with .Resources.ByType "image" }}
+      {{ $scratch.Add "images" . }}
+    {{ end }}
+  {{ end }}
+
+  {{ $images := $scratch.Get "images" }}
+
+  {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
+  {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
+
+  {{ if gt (len $images) 0 }}
+    <ul class="grid" aria-label="Image grid">
+      {{ range $images }}
+        <li class="grid-item">
+          <a href="{{ .RelPermalink }}">
+            <img loading="lazy" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ .Name }}{{ end }}" />
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p>No images found in this section.</p>
+  {{ end }}
+{{ end }}
+

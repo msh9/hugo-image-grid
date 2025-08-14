@@ -1,0 +1,13 @@
+name = "image-grid"
+license = "MIT"
+licenselink = "https://opensource.org/licenses/MIT"
+description = "A minimal, no-JS, no-processing image grid theme for Hugo."
+homepage = "https://photos.michaelonrandom.com/"
+tags = ["gallery", "photos", "grid", "minimal"]
+features = ["responsive-grid", "no-js"]
+min_version = "0.92.0"
+
+[author]
+  name = "Michael On Random + AI assistant"
+  homepage = "https://photos.michaelonrandom.com/"
+

@@ -1,0 +1,36 @@
+{{ define "main" }}
+  {{/* Collect all images from home and all regular pages */}}
+  {{ $scratch := newScratch }}
+  {{ $scratch.Set "images" (slice) }}
+
+  {{ with site.Home.Resources.ByType "image" }}
+    {{ $scratch.Add "images" . }}
+  {{ end }}
+
+  {{ range site.RegularPages }}
+    {{ with .Resources.ByType "image" }}
+      {{ $scratch.Add "images" . }}
+    {{ end }}
+  {{ end }}
+
+  {{ $images := $scratch.Get "images" }}
+
+  {{ with .Content }}
+    <div class="content">{{ . }}</div>
+  {{ end }}
+
+  {{ if gt (len $images) 0 }}
+    <ul class="grid" aria-label="Image grid">
+      {{ range $images }}
+        <li class="grid-item">
+          <a href="{{ .RelPermalink }}">
+            <img loading="lazy" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ .Name }}{{ end }}" />
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p>No images found in content/ yet.</p>
+  {{ end }}
+{{ end }}
+
