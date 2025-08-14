@@ -1,0 +1,18 @@
+{{/*
+  Renders a responsive image grid.
+  Usage: {{ partial "image-grid.html" (dict "images" $images) }}
+  Where $images is a slice of Page Resources (images only).
+*/}}
+{{ $images := .images | default (slice) }}
+{{ if gt (len $images) 0 }}
+  <ul class="grid" aria-label="Image grid">
+    {{ range $images }}
+      <li class="grid-item">
+        {{ $ratio := site.Params.imageGrid.aspectRatio }}
+        <a href="{{ .RelPermalink }}" {{ with $ratio }}style="aspect-ratio: {{ . }}; object-fit: cover;"{{ end }}>
+          <img loading="lazy" decoding="async" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" .Name }}{{ end }}" />
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}

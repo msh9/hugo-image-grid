@@ -1,0 +1,13 @@
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ if .Title }}{{ .Title }} · {{ end }}{{ site.Title }}</title>
+    {{- $style := resources.Get "css/theme.css" -}}
+    {{- with $style -}}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" />
+    {{- end -}}
+    {{- with site.Params.description -}}
+    <meta name="description" content="{{ . }}" />
+    {{- end -}}
+  </head>
+

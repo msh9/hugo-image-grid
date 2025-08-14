@@ -1,4 +1,4 @@
-# image-grid (Hugo theme)
+# hugo-image-grid (Hugo theme)
 
 A minimal, no-JS theme that renders images placed in `content/` as a responsive grid.
 
@@ -12,19 +12,35 @@ Key points:
 1. In your `hugo.toml`, set:
 
    ```toml
-   theme = "image-grid"
+   theme = "hugo-image-grid"
    ```
 
 2. Place images alongside a page bundle (recommended) so Hugo can treat them as page resources. Two simple patterns:
    - Leaf bundle: `content/my-album/index.md` with images in the same folder.
-   - Section bundle: `content/photos/_index.md` with images in the same folder.
+   - Section bundle: `content/exampleSection/_index.md` with images in the same folder.
+
+   Sections are treated as separate albums. On the home page, each top‑level section is shown in its own block, with its title linking to that section’s page. The section page itself displays the section’s images (and, by default, images from descendant pages).
+
+   You can set the section’s title/description in its `_index.md` front matter:
+
+   ```md
+   ---
+   title: My Example Section Title
+   description: This is the description of my example section.
+   ---
+   ```
 
 3. The theme will:
-   - Home (`/`): aggregate and display all images from the site’s pages and the home page’s own resources.
+   - Home (`/`): group by top‑level section; for each section, display all images found in that section and its descendant pages. The section title links to that section’s page.
    - Single page: display that page’s images in a grid, and render page content above the grid.
    - List/section page: display section images plus images from descendant pages.
 
-Alt text uses the resource title when available, or falls back to the filename.
+Alt text uses the resource title when available, or falls back to the filename (without extension). Images use `loading="lazy"` and `decoding="async"` for better performance.
+
+### Image discovery and grid defaults
+
+- Images are discovered only via page resources: `*.{jpg,jpeg,png,webp,avif,gif,bmp}` (case‑insensitive). No image processing or transforms are performed.
+- Default grid uses CSS Grid; no JS and no external frameworks. If you set `params.imageGrid.aspectRatio`, tiles will apply that `aspect-ratio` and `object-fit: cover`.
 
 ## Guardrails
 
@@ -35,4 +51,3 @@ Alt text uses the resource title when available, or falls back to the filename.
 ## Attribution
 
 Authored for this site; not copied from other themes.
-
