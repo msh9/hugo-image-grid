@@ -8,8 +8,8 @@
 
   {{ range site.Sections }}
     {{ $sec := . }}
-    <section class="home-section">
-      <h2 class="page-title"><a href="{{ $sec.RelPermalink }}">{{ $sec.Title }}</a></h2>
+    <section>
+      <h2 class="section-title"><a href="{{ $sec.RelPermalink }}">{{ $sec.Title }}</a></h2>
       {{ with $sec.Description }}<p class="content">{{ . }}</p>{{ end }}
 
       {{ $scratch := newScratch }}
