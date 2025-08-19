@@ -1,6 +1,9 @@
+
 <footer class="site-footer">
+{{ partial "footer-before.html" . }}
   <div class="wrap">
     {{ with site.Copyright }}<p>{{ . }}</p>{{ end }}
   </div>
+{{ partial "footer-after.html" . }}
 </footer>
 
