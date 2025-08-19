@@ -66,6 +66,43 @@ photo3.thumbnail.jpg
 
 In the above example, thumbnails are used for photo1 and photo3; the original is used for photo2.
 
+###  Gallery Hero/Featured Image(s)
+
+hugo-image-grid treats page and section bundles as galleries within the directory structure. For example,
+
+```
+/exampleSite/content/
+photo1.avif
+myAlbum/photo2.avif <-- Gallery in main site
+myAlbum/photo3.avif
+someSection/_index.md <-- Gallery in main site
+someSection/anotherAlbum/photo4.avif <-- Gallery in 'someSection'
+someSection/anotherAlbum/photo5.avif
+```
+
+In each gallery you can choose to either display all photos of each immediate child gallery *or* display a thumbnail of one image from each child gallery that links to the child gallery. In the above example the home page can be configured to show `photo1.avif` and *all* of the photos in `myAlbum` and photos in the `someSection` bundle or to just show `photo1.avif` and one featured thumbnail for each of `myAlbum` and `someSection`. In either case photos from `another Album` are not immediately shown on the home page.
+
+This choice can be set site wide via the site configuration file or on a per section basis. To configure site wide,
+
+```toml
+[params]
+  [params.modules]
+    [params.modules.hugoImageGrid]
+      [params.modules.hugoImageGrid.display]
+        useFeaturedImages = true
+```
+
+To configure use front matter,
+
+```yaml
+---
+params:
+   modules:
+      hugoImageGrid:
+         display:
+            useFeaturedImages = true
+```
+
 ## Guardrails
 
 - No `.Resize`, `.Fit`, `.Filter`, or any other image processing is used.
