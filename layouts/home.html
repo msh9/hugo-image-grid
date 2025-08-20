@@ -19,36 +19,26 @@
     </section>
   {{ end }}
   {{ range $rootChildren }}
+    {{ $child := . }}
     <section>
-      <h2 class="section-title"><a href="/">{{ .Title }}</a></h2>
+      <h2 class="section-title"><a href="{{ $child.RelPermalink }}">{{ .Title }}</a></h2>
       {{ if $useFeatured }}
         {{ $tiles := slice }}
-        {{ range $rootImgs }}{{ $tiles = $tiles | append (dict "img" . "href" .RelPermalink "parent" $) }}{{ end }}
-        {{ range $rootChildren }}
-          {{ $child := . }}
-          {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-          {{ $candidates := slice }}{{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
-          {{ $sorted := sort $candidates "Name" "asc" }}
-          {{ with index $sorted 0 }}
-            {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
-          {{ end }}
+        {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+        {{ $candidates := slice }}{{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
+        {{ $sorted := sort $candidates "Name" "asc" }}
+        {{ with index $sorted 0 }}
+          {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
         {{ end }}
         {{ if gt (len $tiles) 0 }}
           {{ partial "image-grid.html" (dict "tiles" $tiles) }}
-        {{ else }}
-          <p>No images found.</p>
         {{ end }}
       {{ else }}
         {{ $images := slice }}
-        {{ range $rootImgs }}{{ $images = $images | append . }}{{ end }}
-        {{ range $rootChildren }}
-          {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-          {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
-        {{ end }}
+        {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+        {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
         {{ if gt (len $images) 0 }}
           {{ partial "image-grid.html" (dict "images" $images) }}
-        {{ else }}
-          <p>No images found.</p>
         {{ end }}
       {{ end }}
     </section>
