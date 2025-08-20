@@ -3,13 +3,7 @@
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
   {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
 
-  {{/* Resolve useFeaturedImages (default true) with per-bundle override */}}
-  {{ $cfg := newScratch }}
-  {{ $cfg.Set "useFeatured" (site.Params.modules.hugoImageGrid.display.useFeaturedImages | default true) }}
-  {{ with .Params.modules.hugoImageGrid.display.useFeaturedImages }}
-    {{ $cfg.Set "useFeatured" . }}
-  {{ end }}
-  {{ $useFeatured := $cfg.Get "useFeatured" }}
+  {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
   {{/* Current bundle images */}}
   {{ $bundleImgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}

@@ -5,13 +5,7 @@
 
   {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
 
-  {{/* Root gallery (home): show root images and immediate child galleries (top-level sections and leaf bundles) */}}
-  {{ $rootCfg := newScratch }}
-  {{ $rootCfg.Set "useFeatured" (site.Params.modules.hugoImageGrid.display.useFeaturedImages | default true) }}
-  {{ with .Params.modules.hugoImageGrid.display.useFeaturedImages }}
-    {{ $rootCfg.Set "useFeatured" . }}
-  {{ end }}
-  {{ $rootUseFeatured := $rootCfg.Get "useFeatured" }}
+  {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
   {{ $rootImgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
   {{ $rootChildren := slice }}
@@ -23,7 +17,7 @@
   {{ if $hasRoot }}
     <section>
       <h2 class="section-title"><a href="/">{{ .Title }}</a></h2>
-      {{ if $rootUseFeatured }}
+      {{ if $useFeatured }}
         {{ $tiles := slice }}
         {{ range $rootImgs }}{{ $tiles = $tiles | append (dict "img" . "href" .RelPermalink "parent" $) }}{{ end }}
         {{ range $rootChildren }}
@@ -62,14 +56,6 @@
     <section>
       <h2 class="section-title"><a href="{{ $sec.RelPermalink }}">{{ $sec.Title }}</a></h2>
       {{ with $sec.Description }}<p class="content">{{ . }}</p>{{ end }}
-
-      {{/* Resolve section-level useFeaturedImages with default true */}}
-      {{ $cfg := newScratch }}
-      {{ $cfg.Set "useFeatured" (site.Params.modules.hugoImageGrid.display.useFeaturedImages | default true) }}
-      {{ with $sec.Params.modules.hugoImageGrid.display.useFeaturedImages }}
-        {{ $cfg.Set "useFeatured" . }}
-      {{ end }}
-      {{ $useFeatured := $cfg.Get "useFeatured" }}
 
       {{ $bundleImgs := where ($sec.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
       {{ $children := slice }}
