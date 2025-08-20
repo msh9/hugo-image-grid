@@ -12,9 +12,13 @@
   {{ range .Sections }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
   {{ range .RegularPages }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
 
-  {{/* Render root gallery block only when something to show */}}
-  {{ $hasRoot := or (gt (len $rootImgs) 0) (gt (len $rootChildren) 0) }}
-  {{ if $hasRoot }}
+  {{ if gt (len $rootImgs) 0 }}
+    <section>
+      <h2 class="section-title">Non-Gallery Photos</h2>
+      {{ partial "image-grid.html" (dict "images" $rootImgs) }}
+    </section>
+  {{ end }}
+  {{ range $rootChildren }}
     <section>
       <h2 class="section-title"><a href="/">{{ .Title }}</a></h2>
       {{ if $useFeatured }}
@@ -45,51 +49,6 @@
           {{ partial "image-grid.html" (dict "images" $images) }}
         {{ else }}
           <p>No images found.</p>
-        {{ end }}
-      {{ end }}
-    </section>
-  {{ end }}
-
-  {{/* Per-section blocks */}}
-  {{ range site.Sections }}
-    {{ $sec := . }}
-    <section>
-      <h2 class="section-title"><a href="{{ $sec.RelPermalink }}">{{ $sec.Title }}</a></h2>
-      {{ with $sec.Description }}<p class="content">{{ . }}</p>{{ end }}
-
-      {{ $bundleImgs := where ($sec.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-      {{ $children := slice }}
-      {{ range $sec.Sections }}{{ $children = $children | append . }}{{ end }}
-      {{ range $sec.RegularPages }}{{ $children = $children | append . }}{{ end }}
-
-      {{ if $useFeatured }}
-        {{ $tiles := slice }}
-        {{ range $bundleImgs }}{{ $tiles = $tiles | append (dict "img" . "href" .RelPermalink "parent" $sec) }}{{ end }}
-        {{ range $children }}
-          {{ $child := . }}
-          {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-          {{ $candidates := slice }}{{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
-          {{ $sorted := sort $candidates "Name" "asc" }}
-          {{ with index $sorted 0 }}
-            {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
-          {{ end }}
-        {{ end }}
-        {{ if gt (len $tiles) 0 }}
-          {{ partial "image-grid.html" (dict "tiles" $tiles) }}
-        {{ else }}
-          <p>No images found in this section.</p>
-        {{ end }}
-      {{ else }}
-        {{ $images := slice }}
-        {{ range $bundleImgs }}{{ $images = $images | append . }}{{ end }}
-        {{ range $children }}
-          {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-          {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
-        {{ end }}
-        {{ if gt (len $images) 0 }}
-          {{ partial "image-grid.html" (dict "images" $images) }}
-        {{ else }}
-          <p>No images found in this section.</p>
         {{ end }}
       {{ end }}
     </section>
