@@ -4,6 +4,6 @@
 
   {{ $images := .Resources.ByType "image" }}
   {{ if gt (len $images) 0 }}
-    {{ partial "image-grid.html" (dict "images" $images "useThumbs" false) }}
+    {{ partial "image-grid.html" (dict "images" $images ) }}
   {{ end }}
 {{ end }}

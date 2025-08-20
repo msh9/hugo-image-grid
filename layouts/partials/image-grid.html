@@ -3,10 +3,7 @@
   Inputs (one of):
   - images: slice of image Page Resources (links to image)
   - tiles: slice of dicts { img: image Resource, href: string }
-  Options:
-  - useThumbs (bool, default true): when true, use "<base>.thumbnail.*" sibling if present
 */}}
-{{ $useThumbs := .useThumbs | default true }}
 {{ $images := .images | default (slice) }}
 {{ $tiles := .tiles | default (slice) }}
 {{ $all := $images }}
@@ -21,17 +18,15 @@
         {{ $parent := .parent }}
         {{ $name := $img.Name }}
         {{ $src := $img.RelPermalink }}
-        {{ if and $useThumbs (not (in (lower $name) ".thumbnail.")) }}
-          {{ $siblings := slice }}
-          {{ with $parent }}
-            {{ $siblings = .Resources.ByType "image" }}
-          {{ end }}
-          {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
-          {{ range $siblings }}
-            {{ $c := lower .Name }}
-            {{ if hasPrefix $c (printf "%s.thumbnail." $base) }}
-              {{ $src = .RelPermalink }}
-            {{ end }}
+        {{ $siblings := slice }}
+        {{ with $parent }}
+          {{ $siblings = .Resources.ByType "image" }}
+        {{ end }}
+        {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+        {{ range $siblings }}
+          {{ $c := lower .Name }}
+          {{ if hasPrefix $c (printf "%s.thumbnail." $base) }}
+            {{ $src = .RelPermalink }}
           {{ end }}
         {{ end }}
         <li class="grid-item">
@@ -45,16 +40,14 @@
         {{ $name := .Name }}
         {{ if not (in (lower $name) ".thumbnail.") }}
           {{ $src := .RelPermalink }}
-          {{ if $useThumbs }}
-            {{/* Find thumbnail among all provided images in the same directory */}}
-            {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
-            {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-            {{ range $all }}
-              {{ $cdir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-              {{ $cname := lower .Name }}
-              {{ if and (eq $cdir $dir) (hasPrefix $cname (printf "%s.thumbnail." $base)) }}
-                {{ $src = .RelPermalink }}
-              {{ end }}
+          {{/* Find thumbnail among all provided images in the same directory */}}
+          {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+          {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
+          {{ range $all }}
+            {{ $cdir := replaceRE "/[^/]+$" "/" .RelPermalink }}
+            {{ $cname := lower .Name }}
+            {{ if and (eq $cdir $dir) (hasPrefix $cname (printf "%s.thumbnail." $base)) }}
+              {{ $src = .RelPermalink }}
             {{ end }}
           {{ end }}
           <li class="grid-item">
