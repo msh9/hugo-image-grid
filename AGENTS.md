@@ -12,20 +12,19 @@ A concise guide for a CLI coding agent collaborating on this project.
 
 ## How the agent should work (safe defaults)
 
-1. **Incremental, small-scope changes.** Prefer minimal diffs and short PRs that accomplish one thing.
-2. **Ask first.** Before modifying or creating files for a *new* feature or behavior, post 2–6 clarifying questions to confirm intent, scope, and constraints. Proceed only after answers are received.
-3. **Propose a plan.** When starting work, output a brief plan listing:
+* **Incremental, small-scope changes.** Prefer minimal diffs and short PRs that accomplish one thing.
+* **Ask first.** Before modifying or creating files for a *new* feature or behavior, post 2–6 clarifying questions to confirm intent, scope, and constraints. Proceed only after answers are received.
+* **Propose a plan.** When starting work, output a brief plan listing:
 
    * Goal and acceptance criteria
    * Files to touch/create
    * Any new templates/partials/shortcodes
    * Any new JS/CSS modules
-4. **Show the diff.** Provide patch-style diffs (or file-by-file snippets) for review before writing to disk.
-5. **Keep it reversible.** Avoid destructive changes. Don’t delete or rename files without explicit approval.
-6. **Respect existing config.** If linters/formatters/tooling exist, use them. If not, suggest minimal configs (opt-in).
-7. **No large deps by default.** Don’t add packages, heavy frameworks, or build steps unless requested.
-8. **Accessibility & semantics.** Use semantic HTML, alt text, and ARIA where relevant. Don’t regress a11y.
-9. **Performance-conscious.** Prefer lightweight JS (defer/async), CSS that’s scoped, and minimal DOM work.
+* **Keep it reversible.** Avoid destructive changes. Don’t delete or rename files without explicit approval.
+* **Respect existing config.** If linters/formatters/tooling exist, use them. If not, suggest minimal configs (opt-in).
+* **No large deps by default.** Don’t add packages, heavy frameworks, or build steps unless requested.
+* **Accessibility & semantics.** Use semantic HTML, alt text, and ARIA where relevant. Don’t regress a11y.
+* **Performance-conscious.** Prefer lightweight JS (defer/async), CSS that’s scoped, and minimal DOM work.
 
 ## Code conventions (defaults unless told otherwise)
 
