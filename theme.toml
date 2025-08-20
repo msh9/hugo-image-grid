@@ -4,7 +4,7 @@ licenselink = "https://opensource.org/licenses/MIT"
 description = "A minimal, no-JS, no-processing image grid theme for Hugo."
 homepage = "https://github.com/msh9/hugo-image-grid"
 tags = ["gallery", "photos", "grid", "minimal"]
-min_version = "0.123.0"
+min_version = "0.146.0"
 
 [author]
   name = "Michael Hughes"
