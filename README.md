@@ -30,10 +30,10 @@ Key points:
    ---
    ```
 
-3. The theme will:
-   - Home (`/`): group by top‑level section; for each section, display all images found in that section and its descendant pages. The section title links to that section’s page.
-   - Single page: display that page’s images in a grid, and render page content above the grid.
-   - List/section page: display section images plus images from descendant pages.
+3. The theme will (defaults):
+   - Home (`/`): shows a root gallery (images at the content root) and a block per top‑level section. By default, each block displays the current bundle’s images and one featured thumbnail per immediate child gallery (both subsections and leaf bundles). Section titles link to their pages.
+   - Single page: displays that page’s images in a grid above the content; thumbnails are not used.
+   - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.display.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
 
 Alt text uses the resource title when available, or falls back to the filename (without extension). Images use `loading="lazy"` and `decoding="async"` for better performance.
 
@@ -66,7 +66,7 @@ photo3.thumbnail.jpg
 
 In the above example, thumbnails are used for photo1 and photo3; the original is used for photo2.
 
-###  Gallery Hero/Featured Image(s)
+###  Gallery Featured Image(s)
 
 hugo-image-grid treats page and section bundles as galleries within the directory structure. For example,
 
@@ -92,18 +92,32 @@ This choice can be set site wide via the site configuration file or on a per sec
         useFeaturedImages = true
 ```
 
-To configure use front matter,
+To configure per-bundle in front matter (YAML), use:
 
 ```yaml
 ---
 params:
-   modules:
-      hugoImageGrid:
-         display:
-            useFeaturedImages = true
+  modules:
+    hugoImageGrid:
+      display:
+        useFeaturedImages: true
+---
 ```
 
-The front matter configuration will override the site configuration for that bundle only. Finally, if this is not configured in either location then the theme defaults to using featured thumbnail images instead of displaying the entire gallery.
+The front matter configuration overrides the site configuration for that bundle only. If not configured in either location, the theme defaults to using featured thumbnail images (i.e., `useFeaturedImages: true`).
+
+#### Home page root images
+
+To display images that live at the content root on the home page, create a branch bundle at `content/_index.md`. Place your root images alongside that file, for example:
+
+```
+content/
+  _index.md
+  photo1.avif
+  photo2.jpg
+```
+
+Those images are treated as the root gallery and are shown on the home page according to the `useFeaturedImages` setting.
 
 ## Guardrails
 

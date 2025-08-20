@@ -4,15 +4,6 @@
 
   {{ $images := .Resources.ByType "image" }}
   {{ if gt (len $images) 0 }}
-    <ul class="grid" aria-label="Image grid">
-      {{ range $images }}
-        <li class="grid-item">
-          <a href="{{ .RelPermalink }}">
-            <img loading="lazy" src="{{ .RelPermalink }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ .Name }}{{ end }}" />
-          </a>
-        </li>
-      {{ end }}
-    </ul>
+    {{ partial "image-grid.html" (dict "images" $images "useThumbs" false) }}
   {{ end }}
 {{ end }}
-

@@ -1,26 +1,57 @@
 {{ define "main" }}
-  {{/* For a section, show its images plus descendant page images */}}
-  {{ $scratch := newScratch }}
-  {{ $scratch.Set "images" (slice) }}
-
-  {{ with .Resources.ByType "image" }}
-    {{ $scratch.Add "images" . }}
-  {{ end }}
-
-  {{ range .RegularPagesRecursive }}
-    {{ with .Resources.ByType "image" }}
-      {{ $scratch.Add "images" . }}
-    {{ end }}
-  {{ end }}
-
-  {{ $images := $scratch.Get "images" }}
-
   {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
+  {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
 
-  {{ if gt (len $images) 0 }}
-        {{ partial "image-grid.html" (dict "images" $images) }}
-  {{ else }}
+  {{/* Resolve useFeaturedImages (default true) with per-bundle override */}}
+  {{ $cfg := newScratch }}
+  {{ $cfg.Set "useFeatured" (site.Params.modules.hugoImageGrid.display.useFeaturedImages | default true) }}
+  {{ with .Params.modules.hugoImageGrid.display.useFeaturedImages }}
+    {{ $cfg.Set "useFeatured" . }}
+  {{ end }}
+  {{ $useFeatured := $cfg.Get "useFeatured" }}
+
+  {{/* Current bundle images */}}
+  {{ $bundleImgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+
+  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
+  {{ $children := slice }}
+  {{ range .Sections }}{{ $children = $children | append . }}{{ end }}
+  {{ range .RegularPages }}{{ $children = $children | append . }}{{ end }}
+
+  {{ if $useFeatured }}
+    {{/* Build tiles: current images + one tile per child gallery */}}
+    {{ $tiles := slice }}
+    {{ range $bundleImgs }}
+      {{ $tiles = $tiles | append (dict "img" . "href" .RelPermalink "parent" $) }}
+    {{ end }}
+    {{ range $children }}
+      {{ $child := . }}
+      {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+      {{ $candidates := slice }}
+      {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
+      {{ $sorted := sort $candidates "Name" "asc" }}
+      {{ with index $sorted 0 }}
+        {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
+      {{ end }}
+    {{ end }}
+    {{ if gt (len $tiles) 0 }}
+      {{ partial "image-grid.html" (dict "tiles" $tiles) }}
+    {{ else }}
       <p>No images found in this section.</p>
+    {{ end }}
+  {{ else }}
+    {{/* Show all images from immediate child galleries + current bundle images */}}
+    {{ $images := slice }}
+    {{ range $bundleImgs }}{{ $images = $images | append . }}{{ end }}
+    {{ range $children }}
+      {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+      {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
+    {{ end }}
+    {{ if gt (len $images) 0 }}
+      {{ partial "image-grid.html" (dict "images" $images) }}
+    {{ else }}
+      <p>No images found in this section.</p>
+    {{ end }}
   {{ end }}
 {{ end }}

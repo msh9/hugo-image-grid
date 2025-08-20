@@ -1,38 +1,68 @@
 {{/*
   Renders a responsive image grid.
-  Usage: {{ partial "image-grid.html" (dict "images" $images) }}
-  Where $images is a slice of Page Resources (images only).
-
-  Thumbnail behavior (home/section lists only):
-  - If a sibling resource named like "<base>.thumbnail.*" exists, use it as the <img> src.
-  - Always link to the original resource (.RelPermalink).
-  - Skip resources that are themselves thumbnails (".thumbnail." in filename, case-insensitive).
+  Inputs (one of):
+  - images: slice of image Page Resources (links to image)
+  - tiles: slice of dicts { img: image Resource, href: string }
+  Options:
+  - useThumbs (bool, default true): when true, use "<base>.thumbnail.*" sibling if present
 */}}
+{{ $useThumbs := .useThumbs | default true }}
 {{ $images := .images | default (slice) }}
+{{ $tiles := .tiles | default (slice) }}
 {{ $all := $images }}
-{{ if gt (len $images) 0 }}
+{{ $renderTiles := gt (len $tiles) 0 }}
+{{ $items := cond $renderTiles $tiles $images }}
+{{ if gt (len $items) 0 }}
   <ul class="grid" aria-label="Image grid">
-    {{ range $images }}
-      {{ $name := .Name }}
-      {{ $lowerName := lower $name }}
-      {{ if not (in $lowerName ".thumbnail.") }}
-        {{ $basename := replaceRE "\\.[^.]+$" "" $name }}
-        {{ $baseLower := lower $basename }}
-        {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-        {{ $src := .RelPermalink }}
-        {{/* Look for a sibling in the same directory whose name starts with "<base>.thumbnail." */}}
-        {{ range $all }}
-          {{ $cdir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-          {{ $cname := lower .Name }}
-          {{ if and (eq $cdir $dir) (hasPrefix $cname (printf "%s.thumbnail." $baseLower)) }}
-            {{ $src = .RelPermalink }}
+    {{ if $renderTiles }}
+      {{ range $items }}
+        {{ $img := .img }}
+        {{ $href := .href | default $img.RelPermalink }}
+        {{ $parent := .parent }}
+        {{ $name := $img.Name }}
+        {{ $src := $img.RelPermalink }}
+        {{ if and $useThumbs (not (in (lower $name) ".thumbnail.")) }}
+          {{ $siblings := slice }}
+          {{ with $parent }}
+            {{ $siblings = .Resources.ByType "image" }}
+          {{ end }}
+          {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+          {{ range $siblings }}
+            {{ $c := lower .Name }}
+            {{ if hasPrefix $c (printf "%s.thumbnail." $base) }}
+              {{ $src = .RelPermalink }}
+            {{ end }}
           {{ end }}
         {{ end }}
         <li class="grid-item">
-          <a href="{{ .RelPermalink }}">
-            <img loading="lazy" src="{{ $src }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
+          <a href="{{ $href }}">
+            <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with $img.Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
           </a>
         </li>
+      {{ end }}
+    {{ else }}
+      {{ range $items }}
+        {{ $name := .Name }}
+        {{ if not (in (lower $name) ".thumbnail.") }}
+          {{ $src := .RelPermalink }}
+          {{ if $useThumbs }}
+            {{/* Find thumbnail among all provided images in the same directory */}}
+            {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+            {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
+            {{ range $all }}
+              {{ $cdir := replaceRE "/[^/]+$" "/" .RelPermalink }}
+              {{ $cname := lower .Name }}
+              {{ if and (eq $cdir $dir) (hasPrefix $cname (printf "%s.thumbnail." $base)) }}
+                {{ $src = .RelPermalink }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+          <li class="grid-item">
+            <a href="{{ .RelPermalink }}">
+              <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
+            </a>
+          </li>
+        {{ end }}
       {{ end }}
     {{ end }}
   </ul>
