@@ -80,7 +80,7 @@ someSection/anotherAlbum/photo4.avif <-- Gallery in 'someSection'
 someSection/anotherAlbum/photo5.avif
 ```
 
-In each gallery you can choose to either display all photos of each immediate child gallery *or* display a thumbnail of one image from each child gallery that links to the child gallery. In the above example the home page can be configured to show `photo1.avif` and *all* of the photos in `myAlbum` and photos in the `someSection` bundle or to just show `photo1.avif` and one featured thumbnail for each of `myAlbum` and `someSection`. In either case photos from `another Album` are not immediately shown on the home page.
+In each gallery you can choose to either display all photos of each immediate child gallery *or* display a thumbnail of one image from each child gallery that links to the child gallery. In the above example the home page can be configured to show `photo1.avif` and *all* of the photos in `myAlbum` and photos in the `someSection` bundle or to just show `photo1.avif` and one featured thumbnail for each of `myAlbum` and `someSection`. In either case, photos from `another Album` are not immediately shown on the home page. By default, the thumbnail used will be from the first photograph in the bundle based on lexicographic order. In the above example, the thumbnail for `myAlbum` will be of `photo2.avif` and the thumbnail for `someSection` will be `photo4.avif`.
 
 This choice can be set site wide via the site configuration file or on a per section basis. To configure site wide,
 
@@ -102,6 +102,8 @@ params:
          display:
             useFeaturedImages = true
 ```
+
+The front matter configuration will override the site configuration for that bundle only. Finally, if this is not configured in either location then the theme defaults to using featured thumbnail images instead of displaying the entire gallery.
 
 ## Guardrails
 
