@@ -52,7 +52,7 @@
           {{ end }}
           <li class="grid-item">
             <a href="{{ .RelPermalink }}">
-              <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
+              <img loading="lazy" src="{{ $src }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
             </a>
           </li>
         {{ end }}
