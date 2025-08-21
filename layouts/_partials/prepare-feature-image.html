@@ -12,11 +12,10 @@
 */}}
 
 {{ $page := . }}
-{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
 
 {{ $items := slice }}
 
-{{ $imgs := where ($page.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+{{ $imgs := $page.Resources.ByType "image" }}
 {{/* thumbnail index for page */}}
 {{ $thumbIndex := dict }}
 {{ $candidates := slice }}

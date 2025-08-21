@@ -12,14 +12,10 @@
 */}}
 
 {{ $page := . }}
-{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
 
 {{ $items := slice }}
 {{/* Collect this page's image resources */}}
-{{ $imgs := slice }}
-{{ with $page.Resources }}
-  {{ $imgs = where (.ByType "image") "MediaType.SubType" "in" $allowed }}
-{{ end }}
+{{ $imgs := .ByType "image" }}
 
 {{/* Build thumbnail index: key = base name (lower, no ext) */}}
 {{ $thumbIndex := dict }}
