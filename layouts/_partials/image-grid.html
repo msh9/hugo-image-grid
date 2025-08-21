@@ -5,14 +5,12 @@
 */}}
 
 {{ $items := . | default (slice) }}
-{{ if gt (len $items) 0 }}
-  <ul class="grid" aria-label="Image grid">
-    {{ range $items }}
-      <li class="grid-item">
-        <a href="{{ .href }}">
-          <img loading="lazy" decoding="async" src="{{ .src }}" alt="{{ .alt }}" />
-        </a>
-      </li>
-    {{ end }}
-  </ul>
-{{ end }}
+<ul class="grid" aria-label="Image grid">
+  {{ range $items }}
+    <li class="grid-item">
+      <a href="{{ .href }}">
+        <img loading="lazy" src="{{ .src }}" alt="{{ .alt }}" />
+      </a>
+    </li>
+  {{ end }}
+</ul>

@@ -4,9 +4,5 @@
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
   {{ $items := partial "list-grid-items.html" (dict "page" . "useFeaturedImages" $useFeatured) }}
-  {{ if gt (len $items) 0 }}
-    {{ partial "image-grid.html" $items }}
-  {{ else }}
-    <p>No images found in this section.</p>
-  {{ end }}
+  {{ partial "image-grid.html" $items }}
 {{ end }}

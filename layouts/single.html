@@ -1,9 +1,18 @@
 {{ define "main" }}
   {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
+
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
 
-  {{ $items := partial "single-grid-items.html" (dict "page" .) }}
-  {{ if gt (len $items) 0 }}
-    {{ partial "image-grid.html" $items }}
+  {{ $items := slice }}
+  {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+  {{ range $imgs }}
+    {{ $name := .Name }}
+    {{ if not (in (lower $name) ".thumbnail.") }}
+      {{ $src := .RelPermalink }}
+      {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
+      {{ $items = $items | append (dict "src" $src "href" $src "alt" $alt) }}
+    {{ end }}
   {{ end }}
+
+  {{ partial "image-grid.html" $items }}
 {{ end }}

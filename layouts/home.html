@@ -7,12 +7,10 @@
 
   {{/* Home root images */}}
   {{ $rootItems := partial "home-grid-items.html" (dict "page" . "mode" "images") }}
-  {{ if gt (len $rootItems) 0 }}
-    <section>
-      <h2 class="section-title">Non-Gallery Photos</h2>
-      {{ partial "image-grid.html" $rootItems }}
-    </section>
-  {{ end }}
+  <section>
+    <h2 class="section-title">Non-Gallery Photos</h2>
+    {{ partial "image-grid.html" $rootItems }}
+  </section>
 
   {{/* Immediate child galleries: direct subsections + direct regular pages */}}
   {{ $rootChildren := slice }}
@@ -23,13 +21,13 @@
     {{ $child := . }}
     <section>
       <h2 class="section-title"><a href="{{ $child.RelPermalink }}">{{ .Title }}</a></h2>
+      {{ $items := nil }}
       {{ if $useFeatured }}
-        {{ $items := partial "home-grid-items.html" (dict "page" $child "mode" "featured") }}
-        {{ if gt (len $items) 0 }}{{ partial "image-grid.html" $items }}{{ end }}
+        {{ $items = partial "home-grid-items.html" (dict "page" $child "mode" "featured") }}
       {{ else }}
-        {{ $items := partial "home-grid-items.html" (dict "page" $child "mode" "images") }}
-        {{ if gt (len $items) 0 }}{{ partial "image-grid.html" $items }}{{ end }}
+        {{ $items = partial "home-grid-items.html" (dict "page" $child "mode" "images") }}
       {{ end }}
+      {{ partial "image-grid.html" $items }}
     </section>
   {{ end }}
 {{ end }}

@@ -1,0 +1,107 @@
+{{/*
+  List page helper: returns a normalized slice of dict items
+  for rendering by image-grid.html.
+
+  Input dict:
+    - page: the current list/section page
+    - useFeaturedImages: boolean
+
+  Output items:
+    - src: image URL to display (thumbnail if available)
+    - href: link target (image URL for list pages)
+    - alt: alt text (title or filename)
+*/}}
+
+{{ $page := .page }}
+{{ $useFeatured := .useFeaturedImages | default true }}
+{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
+
+{{ $items := slice }}
+{{ if $page }}
+  {{/* Current bundle images */}}
+  {{ $bundleImgs := where ($page.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+
+  {{/* Build thumbnail index for current bundle */}}
+  {{ $thumbIndexBundle := dict }}
+  {{ range $bundleImgs }}
+    {{ $lname := lower .Name }}
+    {{ if in $lname ".thumbnail." }}
+      {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+      {{ $thumbIndexBundle = merge $thumbIndexBundle (dict $base .) }}
+    {{ end }}
+  {{ end }}
+
+  {{/* Append current bundle images (non-thumbnails) */}}
+  {{ range $bundleImgs }}
+    {{ $name := .Name }}
+    {{ if not (in (lower $name) ".thumbnail.") }}
+      {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+      {{ $src := .RelPermalink }}
+      {{ with index $thumbIndexBundle $base }}{{ $src = .RelPermalink }}{{ end }}
+      {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
+      {{ $items = $items | append (dict "src" $src "href" .RelPermalink "alt" $alt) }}
+    {{ end }}
+  {{ end }}
+
+  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
+  {{ $children := slice }}
+  {{ range $page.Sections }}{{ $children = $children | append . }}{{ end }}
+  {{ range $page.RegularPages }}{{ $children = $children | append . }}{{ end }}
+
+  {{ if $useFeatured }}
+    {{/* One featured tile per child */}}
+    {{ range $children }}
+      {{ $child := . }}
+      {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+      {{/* thumbnail index for child */}}
+      {{ $thumbIndex := dict }}
+      {{ range $imgs }}
+        {{ $lname := lower .Name }}
+        {{ if in $lname ".thumbnail." }}
+          {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+          {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+        {{ end }}
+      {{ end }}
+      {{ $candidates := slice }}
+      {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail.") }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
+      {{ $sorted := sort $candidates "Name" "asc" }}
+      {{ with index $sorted 0 }}
+        {{ $cover := . }}
+        {{ $name := $cover.Name }}
+        {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+        {{ $src := $cover.RelPermalink }}
+        {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+        {{ $alt := cond (ne $cover.Title "") $cover.Title (replaceRE "\\.[^.]+$" "" $name) }}
+        {{ $items = $items | append (dict "src" $src "href" $child.RelPermalink "alt" $alt) }}
+      {{ end }}
+    {{ end }}
+  {{ else }}
+    {{/* Show all images from immediate child galleries */}}
+    {{ range $children }}
+      {{ $child := . }}
+      {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+      {{/* thumbnail index for child */}}
+      {{ $thumbIndex := dict }}
+      {{ range $imgs }}
+        {{ $lname := lower .Name }}
+        {{ if in $lname ".thumbnail." }}
+          {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+          {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+        {{ end }}
+      {{ end }}
+      {{ range $imgs }}
+        {{ $name := .Name }}
+        {{ if not (in (lower $name) ".thumbnail.") }}
+          {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+          {{ $src := .RelPermalink }}
+          {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+          {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
+          {{ $items = $items | append (dict "src" $src "href" .RelPermalink "alt" $alt) }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ return $items }}
+

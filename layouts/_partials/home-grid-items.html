@@ -1,0 +1,67 @@
+{{/*
+  Home page helper: returns a normalized slice of dict items
+  for rendering by image-grid.html.
+
+  Input dict:
+    - page: Page bundle to source images from
+    - mode: "images" | "featured" (default: "images")
+
+  Output item shape (normalized):
+    - src: string (thumbnail if available, else original)
+    - href: string (link to the containing page)
+    - alt: string (resource Title or filename without extension)
+*/}}
+
+{{ $page := .page }}
+{{ $mode := .mode | default "images" }}
+{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
+
+{{ $items := slice }}
+{{ if $page }}
+  {{/* Collect this page's image resources */}}
+  {{ $imgs := slice }}
+  {{ with $page.Resources }}
+    {{ $imgs = where (.ByType "image") "MediaType.SubType" "in" $allowed }}
+  {{ end }}
+
+  {{/* Build thumbnail index: key = base name (lower, no ext) */}}
+  {{ $thumbIndex := dict }}
+  {{ range $imgs }}
+    {{ $lname := lower .Name }}
+    {{ if in $lname ".thumbnail." }}
+      {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+      {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+    {{ end }}
+  {{ end }}
+
+  {{ if eq $mode "featured" }}
+    {{/* Choose first non-thumbnail image as cover */}}
+    {{ $candidates := slice }}
+    {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail.") }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
+    {{ $sorted := sort $candidates "Name" "asc" }}
+    {{ with index $sorted 0 }}
+      {{ $cover := . }}
+      {{ $name := $cover.Name }}
+      {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+      {{ $src := $cover.RelPermalink }}
+      {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+      {{ $alt := cond (ne $cover.Title "") $cover.Title (replaceRE "\\.[^.]+$" "" $name) }}
+      {{ $items = $items | append (dict "src" $src "href" $page.RelPermalink "alt" $alt) }}
+    {{ end }}
+  {{ else }}
+    {{/* Emit all non-thumbnail images linking to the containing page */}}
+    {{ range $imgs }}
+      {{ $name := .Name }}
+      {{ if not (in (lower $name) ".thumbnail.") }}
+        {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+        {{ $src := .RelPermalink }}
+        {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+        {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
+        {{ $items = $items | append (dict "src" $src "href" $page.RelPermalink "alt" $alt) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ return $items }}
+
