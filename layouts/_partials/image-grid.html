@@ -1,58 +1,104 @@
 {{/*
   Renders a responsive image grid.
-  Inputs (one of):
-  - images: slice of image Page Resources (links to image)
-  - tiles: slice of dicts { img: image Resource, href: string }
+  Input: a slice of items where each item is either
+  - an image Page Resource (tile links to image), or
+  - a Page (tile links to the page; uses first image as cover)
+
+  Thumbnails: If a file named with ".thumbnail." exists alongside an image
+  (any extension), that thumbnail is used for display while the link points
+  to the image or page as described above.
 */}}
-{{ $images := .images | default (slice) }}
-{{ $tiles := .tiles | default (slice) }}
-{{ $all := $images }}
-{{ $renderTiles := gt (len $tiles) 0 }}
-{{ $items := cond $renderTiles $tiles $images }}
+
+{{ $items := . | default (slice) }}
 {{ if gt (len $items) 0 }}
-  <ul class="grid" aria-label="Image grid">
-    {{ if $renderTiles }}
-      {{ range $items }}
-        {{ $img := .img }}
-        {{ $href := .href | default $img.RelPermalink }}
-        {{ $parent := .parent }}
-        {{ $name := $img.Name }}
-        {{ $src := $img.RelPermalink }}
-        {{ $siblings := slice }}
-        {{ with $parent }}
-          {{ $siblings = .Resources.ByType "image" }}
-        {{ end }}
-        {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
-        {{ range $siblings }}
-          {{ $c := lower .Name }}
-          {{ if hasPrefix $c (printf "%s.thumbnail." $base) }}
-            {{ $src = .RelPermalink }}
-          {{ end }}
-        {{ end }}
-        <li class="grid-item">
-          <a href="{{ $href }}">
-            <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with $img.Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
-          </a>
-        </li>
+  {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
+
+  {{/* Collect all images reachable from the provided items */}}
+  {{ $allImages := slice }}
+  {{ range $items }}
+    {{ $it := . }}
+    {{/* Image resource: has a MediaType with MainType == "image" */}}
+    {{ with $it.MediaType }}
+      {{ if eq .MainType "image" }}
+        {{ $allImages = $allImages | append $it }}
       {{ end }}
     {{ else }}
-      {{ range $items }}
-        {{ $name := .Name }}
+      {{/* Assume Page-like: collect its image resources */}}
+      {{ with $it.Resources }}
+        {{ $imgs := where (.ByType "image") "MediaType.SubType" "in" $allowed }}
+        {{ range $imgs }}
+          {{ $allImages = $allImages | append . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+
+  {{/* Build a lookup map of thumbnails keyed by dir+basename (no ext) */}}
+  {{ $thumbIndex := dict }}
+  {{ range $allImages }}
+    {{ $lname := lower .Name }}
+    {{ if in $lname ".thumbnail." }}
+      {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
+      {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+      {{ $key := printf "%s|%s" $dir $base }}
+      {{ $thumbIndex = merge $thumbIndex (dict $key .) }}
+    {{ end }}
+  {{ end }}
+
+  <ul class="grid" aria-label="Image grid">
+    {{ range $items }}
+      {{ $it := . }}
+      {{/* Branch on whether this is an image resource or a page */}}
+      {{ $isImage := false }}
+      {{ with $it.MediaType }}
+        {{ if eq .MainType "image" }}{{ $isImage = true }}{{ end }}
+      {{ end }}
+
+      {{ if $isImage }}
+        {{ $name := $it.Name }}
         {{ if not (in (lower $name) ".thumbnail.") }}
-          {{ $src := .RelPermalink }}
-          {{/* Find thumbnail among all provided images in the same directory */}}
+          {{ $href := $it.RelPermalink }}
+          {{ $src := $href }}
+          {{ $dir := replaceRE "/[^/]+$" "/" $href }}
           {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
-          {{ $dir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-          {{ range $all }}
-            {{ $cdir := replaceRE "/[^/]+$" "/" .RelPermalink }}
-            {{ $cname := lower .Name }}
-            {{ if and (eq $cdir $dir) (hasPrefix $cname (printf "%s.thumbnail." $base)) }}
-              {{ $src = .RelPermalink }}
-            {{ end }}
+          {{ $key := printf "%s|%s" $dir $base }}
+          {{ with index $thumbIndex $key }}
+            {{ $src = .RelPermalink }}
           {{ end }}
           <li class="grid-item">
-            <a href="{{ .RelPermalink }}">
-              <img loading="lazy" src="{{ $src }}" alt="{{ with .Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
+            <a href="{{ $href }}">
+              <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with $it.Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
+            </a>
+          </li>
+        {{ end }}
+      {{ else }}
+        {{/* Treat as Page: choose first image as cover (non-thumbnail) */}}
+        {{ $page := $it }}
+        {{ $href := $page.RelPermalink }}
+        {{ $imgs := slice }}
+        {{ with $page.Resources }}
+          {{ $imgs = where (.ByType "image") "MediaType.SubType" "in" $allowed }}
+        {{ end }}
+        {{ $candidates := slice }}
+        {{ range $imgs }}
+          {{ if not (in (lower .Name) ".thumbnail.") }}
+            {{ $candidates = $candidates | append . }}
+          {{ end }}
+        {{ end }}
+        {{ $sorted := sort $candidates "Name" "asc" }}
+        {{ with index $sorted 0 }}
+          {{ $cover := . }}
+          {{ $name := $cover.Name }}
+          {{ $src := $cover.RelPermalink }}
+          {{ $dir := replaceRE "/[^/]+$" "/" $cover.RelPermalink }}
+          {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+          {{ $key := printf "%s|%s" $dir $base }}
+          {{ with index $thumbIndex $key }}
+            {{ $src = .RelPermalink }}
+          {{ end }}
+          <li class="grid-item">
+            <a href="{{ $href }}">
+              <img loading="lazy" decoding="async" src="{{ $src }}" alt="{{ with $cover.Title }}{{ . }}{{ else }}{{ replaceRE "\\.[^.]+$" "" $name }}{{ end }}" />
             </a>
           </li>
         {{ end }}

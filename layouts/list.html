@@ -14,23 +14,12 @@
   {{ range .RegularPages }}{{ $children = $children | append . }}{{ end }}
 
   {{ if $useFeatured }}
-    {{/* Build tiles: current images + one tile per child gallery */}}
-    {{ $tiles := slice }}
-    {{ range $bundleImgs }}
-      {{ $tiles = $tiles | append (dict "img" . "href" .RelPermalink "parent" $) }}
-    {{ end }}
-    {{ range $children }}
-      {{ $child := . }}
-      {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-      {{ $candidates := slice }}
-      {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
-      {{ $sorted := sort $candidates "Name" "asc" }}
-      {{ with index $sorted 0 }}
-        {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
-      {{ end }}
-    {{ end }}
-    {{ if gt (len $tiles) 0 }}
-      {{ partial "image-grid.html" (dict "tiles" $tiles) }}
+    {{/* Build items: current images + each child page (featured cover handled in partial) */}}
+    {{ $items := slice }}
+    {{ range $bundleImgs }}{{ $items = $items | append . }}{{ end }}
+    {{ range $children }}{{ $items = $items | append . }}{{ end }}
+    {{ if gt (len $items) 0 }}
+      {{ partial "image-grid.html" $items }}
     {{ else }}
       <p>No images found in this section.</p>
     {{ end }}
@@ -40,10 +29,10 @@
     {{ range $bundleImgs }}{{ $images = $images | append . }}{{ end }}
     {{ range $children }}
       {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-      {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
+      {{ range $imgs }}{{ $images = $images | append . }}{{ end }}
     {{ end }}
     {{ if gt (len $images) 0 }}
-      {{ partial "image-grid.html" (dict "images" $images) }}
+      {{ partial "image-grid.html" $images }}
     {{ else }}
       <p>No images found in this section.</p>
     {{ end }}

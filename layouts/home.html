@@ -15,7 +15,7 @@
   {{ if gt (len $rootImgs) 0 }}
     <section>
       <h2 class="section-title">Non-Gallery Photos</h2>
-      {{ partial "image-grid.html" (dict "images" $rootImgs) }}
+      {{ partial "image-grid.html" $rootImgs }}
     </section>
   {{ end }}
   {{ range $rootChildren }}
@@ -23,23 +23,13 @@
     <section>
       <h2 class="section-title"><a href="{{ $child.RelPermalink }}">{{ .Title }}</a></h2>
       {{ if $useFeatured }}
-        {{ $tiles := slice }}
-        {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-        {{ $candidates := slice }}{{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $candidates = $candidates | append . }}{{ end }}{{ end }}
-        {{ $sorted := sort $candidates "Name" "asc" }}
-        {{ with index $sorted 0 }}
-          {{ $tiles = $tiles | append (dict "img" . "href" $child.RelPermalink "parent" $child) }}
-        {{ end }}
-        {{ if gt (len $tiles) 0 }}
-          {{ partial "image-grid.html" (dict "tiles" $tiles) }}
-        {{ end }}
+        {{/* Show one tile representing the child page */}}
+        {{ partial "image-grid.html" (slice $child) }}
       {{ else }}
         {{ $images := slice }}
         {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-        {{ range $imgs }}{{ if not (in (lower .Name) ".thumbnail." ) }}{{ $images = $images | append . }}{{ end }}{{ end }}
-        {{ if gt (len $images) 0 }}
-          {{ partial "image-grid.html" (dict "images" $images) }}
-        {{ end }}
+        {{ range $imgs }}{{ $images = $images | append . }}{{ end }}
+        {{ if gt (len $images) 0 }}{{ partial "image-grid.html" $images }}{{ end }}
       {{ end }}
     </section>
   {{ end }}
