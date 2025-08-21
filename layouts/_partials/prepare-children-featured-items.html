@@ -1,0 +1,34 @@
+{{/*
+  prepare-children-featured-items: returns a normalized slice of dict items
+  representing the featured/cover image for each immediate child of a page.
+
+  Input:
+    - parent page/section as .
+
+  Output items (normalized for image-grid.html):
+    - src: image URL (thumbnail if available)
+    - href: link to the child page
+    - alt: child page Title (treating the image as a cover)
+*/}}
+
+{{ $parent := . }}
+{{ $items := slice }}
+
+{{/* Collect immediate children: direct subsections + direct regular pages */}}
+{{ $children := slice }}
+{{ range $parent.Sections }}{{ $children = $children | append . }}{{ end }}
+{{ range $parent.RegularPages }}{{ $children = $children | append . }}{{ end }}
+
+{{ range $children }}
+  {{ $child := . }}
+  {{ $feat := partial "prepare-feature-image.html" $child }}
+  {{ with index $feat 0 }}
+    {{ $src := .src }}
+    {{ $href := $child.RelPermalink }}
+    {{ $alt := $child.Title }}
+    {{ $items = $items | append (dict "src" $src "href" $href "alt" $alt) }}
+  {{ end }}
+{{ end }}
+
+{{ return $items }}
+
