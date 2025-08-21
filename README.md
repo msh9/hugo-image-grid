@@ -48,7 +48,7 @@ The theme can use pregenerated thumbnails on the home page and section pages. If
 
 How it works:
 - Provide two files per image within the same bundle: the original and its thumbnail.
-- Name the thumbnail with `.thumbnail.` right before the file extension (case-insensitive match on the word `thumbnail`).
+- Name the thumbnail with the prefix `thumbnail-` followed by the original filename (case-insensitive for the prefix), e.g. `thumbnail-picture1.avif` for `picture1.avif`.
 - Thumbnails can use a different extension than the original.
 - In grids (home/section pages), the tile links to the original image but displays the thumbnail when available.
 - Single pages continue to display the original images; thumbnails are not used on single pages.
@@ -57,14 +57,14 @@ Example:
 
 ```
 /exampleSite/content/myalbum/
-photo1.avif
-photo1.thumbnail.avif
+picture1.avif
+thumbnail-picture1.avif
 photo2.webp
 photo3.jpg
-photo3.thumbnail.jpg
+thumbnail-photo3.avif
 ```
 
-In the above example, thumbnails are used for photo1 and photo3; the original is used for photo2.
+In the above example, thumbnails are used for `picture1` and `photo3`; the original is used for `photo2`.
 
 ###  Gallery Featured Image(s)
 

@@ -16,14 +16,14 @@
 {{ $items := slice }}
 
 {{ $imgs := $page.Resources.ByType "image" }}
-{{/* thumbnail index for page */}}
+{{/* thumbnail index for page (prefix-based) */}}
 {{ $thumbIndex := dict }}
 {{ $candidates := slice }}
 
 {{ range $imgs }}
   {{ $lname := lower .Name }}
-  {{ if in $lname ".thumbnail." }}
-    {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+  {{ if hasPrefix $lname "thumbnail-" }}
+    {{ $base := replaceRE "^thumbnail-(.+)\\..+$" "$1" $lname }}
     {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
   {{ else }}
     {{ $candidates = $candidates | append . }}

@@ -7,7 +7,7 @@
   {{ $imgs := .Resources.ByType "image" }}
   {{ range $imgs }}
     {{ $name := .Name }}
-    {{ if not (in (lower $name) ".thumbnail.") }}
+    {{ if not (hasPrefix (lower $name) "thumbnail-") }}
       {{ $src := .RelPermalink }}
       {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
       {{ $items = $items | append (dict "src" $src "href" $src "alt" $alt) }}

@@ -15,21 +15,21 @@
 
 {{ $items := slice }}
 {{/* Collect this page's image resources */}}
-{{ $imgs := .ByType "image" }}
+{{ $imgs := $page.Resources.ByType "image" }}
 
 {{/* Build thumbnail index: key = base name (lower, no ext) */}}
 {{ $thumbIndex := dict }}
 {{ range $imgs }}
   {{ $lname := lower .Name }}
-  {{ if in $lname ".thumbnail." }}
-    {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+  {{ if hasPrefix $lname "thumbnail-" }}
+    {{ $base := replaceRE "^thumbnail-(.+)\\..+$" "$1" $lname }}
     {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
   {{ end }}
 {{ end }}
 
 {{ range $imgs }}
   {{ $name := .Name }}
-  {{ if not (in (lower $name) ".thumbnail.") }}
+  {{ if not (hasPrefix (lower $name) "thumbnail-") }}
     {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
     {{ $src := .RelPermalink }}
     {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
@@ -40,4 +40,3 @@
 
 
 {{ return $items }}
-
