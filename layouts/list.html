@@ -1,40 +1,12 @@
 {{ define "main" }}
   {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
-  {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
-
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
-  {{/* Current bundle images */}}
-  {{ $bundleImgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-
-  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
-  {{ $children := slice }}
-  {{ range .Sections }}{{ $children = $children | append . }}{{ end }}
-  {{ range .RegularPages }}{{ $children = $children | append . }}{{ end }}
-
-  {{ if $useFeatured }}
-    {{/* Build items: current images + each child page (featured cover handled in partial) */}}
-    {{ $items := slice }}
-    {{ range $bundleImgs }}{{ $items = $items | append . }}{{ end }}
-    {{ range $children }}{{ $items = $items | append . }}{{ end }}
-    {{ if gt (len $items) 0 }}
-      {{ partial "image-grid.html" $items }}
-    {{ else }}
-      <p>No images found in this section.</p>
-    {{ end }}
+  {{ $items := partial "list-grid-items.html" (dict "page" . "useFeaturedImages" $useFeatured) }}
+  {{ if gt (len $items) 0 }}
+    {{ partial "image-grid.html" $items }}
   {{ else }}
-    {{/* Show all images from immediate child galleries + current bundle images */}}
-    {{ $images := slice }}
-    {{ range $bundleImgs }}{{ $images = $images | append . }}{{ end }}
-    {{ range $children }}
-      {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-      {{ range $imgs }}{{ $images = $images | append . }}{{ end }}
-    {{ end }}
-    {{ if gt (len $images) 0 }}
-      {{ partial "image-grid.html" $images }}
-    {{ else }}
-      <p>No images found in this section.</p>
-    {{ end }}
+    <p>No images found in this section.</p>
   {{ end }}
 {{ end }}

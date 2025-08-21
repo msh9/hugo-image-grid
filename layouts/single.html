@@ -2,8 +2,8 @@
   {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
 
-  {{ $images := .Resources.ByType "image" }}
-  {{ if gt (len $images) 0 }}
-    {{ partial "image-grid.html" $images }}
+  {{ $items := partial "single-grid-items.html" (dict "page" .) }}
+  {{ if gt (len $items) 0 }}
+    {{ partial "image-grid.html" $items }}
   {{ end }}
 {{ end }}

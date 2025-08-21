@@ -3,33 +3,32 @@
     <div class="content">{{ . }}</div>
   {{ end }}
 
-  {{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
-
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
-  {{ $rootImgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+  {{/* Home root images */}}
+  {{ $rootItems := partial "home-grid-items.html" (dict "page" . "mode" "images") }}
+  {{ if gt (len $rootItems) 0 }}
+    <section>
+      <h2 class="section-title">Non-Gallery Photos</h2>
+      {{ partial "image-grid.html" $rootItems }}
+    </section>
+  {{ end }}
+
+  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
   {{ $rootChildren := slice }}
   {{ range .Sections }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
   {{ range .RegularPages }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
 
-  {{ if gt (len $rootImgs) 0 }}
-    <section>
-      <h2 class="section-title">Non-Gallery Photos</h2>
-      {{ partial "image-grid.html" $rootImgs }}
-    </section>
-  {{ end }}
   {{ range $rootChildren }}
     {{ $child := . }}
     <section>
       <h2 class="section-title"><a href="{{ $child.RelPermalink }}">{{ .Title }}</a></h2>
       {{ if $useFeatured }}
-        {{/* Show one tile representing the child page */}}
-        {{ partial "image-grid.html" (slice $child) }}
+        {{ $items := partial "home-grid-items.html" (dict "page" $child "mode" "featured") }}
+        {{ if gt (len $items) 0 }}{{ partial "image-grid.html" $items }}{{ end }}
       {{ else }}
-        {{ $images := slice }}
-        {{ $imgs := where ($child.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
-        {{ range $imgs }}{{ $images = $images | append . }}{{ end }}
-        {{ if gt (len $images) 0 }}{{ partial "image-grid.html" $images }}{{ end }}
+        {{ $items := partial "home-grid-items.html" (dict "page" $child "mode" "images") }}
+        {{ if gt (len $items) 0 }}{{ partial "image-grid.html" $items }}{{ end }}
       {{ end }}
     </section>
   {{ end }}
