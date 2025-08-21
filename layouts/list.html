@@ -3,6 +3,28 @@
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
-  {{ $items := partial "list-grid-items.html" (dict "page" . "useFeaturedImages" $useFeatured) }}
-  {{ partial "image-grid.html" $items }}
+  <section>
+    {{ $items := partial "prepare-bundle-images.html" . }}
+    {{ partial "image-grid.html" $items }}
+  </section>
+
+  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
+  {{ $children := slice }}
+  {{ range .Sections }}{{ $children = $children | append . }}{{ end }}
+  {{ range .RegularPages }}{{ $children = $children | append . }}{{ end }}
+
+  {{ range $children }}
+    <section>
+      <h2 class="section-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      {{ $items := nil }}
+      {{ if $useFeatured }}
+        {{ $items = partial "prepare-feature-image.html" . }}
+      {{ else }}
+        {{ $items = partial "prepare-bundle-images.html" . }}
+      {{ end }}
+      {{ partial "image-grid.html" $items }}
+    </section>
+  {{ end }}
+
+
 {{ end }}

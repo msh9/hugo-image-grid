@@ -6,7 +6,7 @@
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
   {{/* Home root images */}}
-  {{ $rootItems := partial "home-grid-items.html" (dict "page" . "mode" "images") }}
+  {{ $rootItems := partial "prepare-bundle-images.html" . }}
   <section>
     <h2 class="section-title">Non-Gallery Photos</h2>
     {{ partial "image-grid.html" $rootItems }}
@@ -21,11 +21,11 @@
     {{ $child := . }}
     <section>
       <h2 class="section-title"><a href="{{ $child.RelPermalink }}">{{ .Title }}</a></h2>
-      {{ $items := nil }}
+      {{ $items := slice }}
       {{ if $useFeatured }}
-        {{ $items = partial "home-grid-items.html" (dict "page" $child "mode" "featured") }}
+        {{ $items = partial "prepare-feature-image.html" $child }}
       {{ else }}
-        {{ $items = partial "home-grid-items.html" (dict "page" $child "mode" "images") }}
+        {{ $items = partial "prepare-bundle-images.html" $child }}
       {{ end }}
       {{ partial "image-grid.html" $items }}
     </section>

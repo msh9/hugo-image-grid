@@ -4,7 +4,7 @@
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
 
   {{ $items := slice }}
-  {{ $imgs := where (.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+  {{ $imgs := .Resources.ByType "image" }}
   {{ range $imgs }}
     {{ $name := .Name }}
     {{ if not (in (lower $name) ".thumbnail.") }}

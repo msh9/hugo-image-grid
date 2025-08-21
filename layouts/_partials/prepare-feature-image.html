@@ -1,0 +1,45 @@
+{{/*
+  prepare-feature-image: returns a normalized slice of dict items
+  for rendering by image-grid.html. From a single child
+
+  Input dict:
+    - The page to get resources from passed as .
+
+  Output items:
+    - src: image URL to display (thumbnail if available)
+    - href: link target (image URL for list pages)
+    - alt: alt text (title or filename)
+*/}}
+
+{{ $page := . }}
+{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
+
+{{ $items := slice }}
+
+{{ $imgs := where ($page.Resources.ByType "image") "MediaType.SubType" "in" $allowed }}
+{{/* thumbnail index for page */}}
+{{ $thumbIndex := dict }}
+{{ $candidates := slice }}
+
+{{ range $imgs }}
+  {{ $lname := lower .Name }}
+  {{ if in $lname ".thumbnail." }}
+    {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+    {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+  {{ else }}
+    {{ $candidates = $candidates | append . }}
+  {{ end }}
+{{ end }}
+
+{{ $sorted := sort $candidates "Name" "asc" }}
+{{ with index $sorted 0 }}
+  {{ $featuredImage := . }}
+  {{ $name := $featuredImage.Name }}
+  {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+  {{ $src := $featuredImage.RelPermalink }}
+  {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+  {{ $alt := cond (ne $featuredImage.Title "") $featuredImage.Title (replaceRE "\\.[^.]+$" "" $name) }}
+  {{ $items = $items | append (dict "src" $src "href" $page.RelPermalink "alt" $alt) }}
+{{ end }}
+
+{{ return $items }}

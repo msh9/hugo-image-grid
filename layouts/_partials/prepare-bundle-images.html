@@ -1,0 +1,47 @@
+{{/*
+  Home page helper: returns a normalized slice of dict items
+  for rendering by image-grid.html.
+
+  Input:
+    - page/section/etc to get resources from as .
+
+  Output item shape (normalized):
+    - src: string (thumbnail if available, else original)
+    - href: string (link to the containing page)
+    - alt: string (resource Title or filename without extension)
+*/}}
+
+{{ $page := . }}
+{{ $allowed := slice "jpg" "jpeg" "png" "webp" "avif" "gif" "bmp" }}
+
+{{ $items := slice }}
+{{/* Collect this page's image resources */}}
+{{ $imgs := slice }}
+{{ with $page.Resources }}
+  {{ $imgs = where (.ByType "image") "MediaType.SubType" "in" $allowed }}
+{{ end }}
+
+{{/* Build thumbnail index: key = base name (lower, no ext) */}}
+{{ $thumbIndex := dict }}
+{{ range $imgs }}
+  {{ $lname := lower .Name }}
+  {{ if in $lname ".thumbnail." }}
+    {{ $base := replaceRE "\\.thumbnail\\..+$" "" $lname }}
+    {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+  {{ end }}
+{{ end }}
+
+{{ range $imgs }}
+  {{ $name := .Name }}
+  {{ if not (in (lower $name) ".thumbnail.") }}
+    {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
+    {{ $src := .RelPermalink }}
+    {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+    {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
+    {{ $items = $items | append (dict "src" $src "href" .RelPermalink "alt" $alt) }}
+  {{ end }}
+{{ end }}
+
+
+{{ return $items }}
+
