@@ -39,32 +39,34 @@ Alt text uses the resource title when available, or falls back to the filename (
 
 ### Image discovery and grid defaults
 
-- Images are discovered only via page resources: `*.{jpg,jpeg,png,webp,avif,gif,bmp}` (case‑insensitive). No image processing or transforms are performed.
+- Images are discovered only via page resources
+- No image processing or transforms are performed.
 - Default grid uses CSS Grid; no JS and no external frameworks. 
 
-### Thumbnails
+### Size aware images
 
-The theme can use pregenerated thumbnails on the home page and section pages. If pregenerated thumbnails are not provided, the original images are used as-is.
+The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. The theme can use up to three files per image format. As an example, if I have an image in a resource bundle called 'photo1.avif' then I can also provide 'small-photo1.avif' and 'medium-photo1.avif'. Generally, the theme expects 'small-*' image to be be ~400px wide and 'medium-*' images to be 800px wide.
 
 How it works:
-- Provide two files per image within the same bundle: the original and its thumbnail.
-- Name the thumbnail with the prefix `thumbnail-` followed by the original filename (case-insensitive for the prefix), e.g. `thumbnail-picture1.avif` for `picture1.avif`.
-- Thumbnails can use a different extension than the original.
-- In grids (home/section pages), the tile links to the original image but displays the thumbnail when available.
-- Single pages continue to display the original images; thumbnails are not used on single pages.
+- Provide up to three files per image within the same bundle: the original, small, and medium
+- 'small-' should be 400px wide
+- 'medium-' should be 800px wide
+- All images should be of the same file type and use the same file extension, e.g. all '...jpg' or '...avif' etc.
+- You can provide less than three, e.g. the original and just a 'small-' image.
 
 Example:
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-thumbnail-picture1.avif
+small-picture1.avif
 photo2.webp
 photo3.jpg
-thumbnail-photo3.avif
+small-photo3.avif
+medium-photo3.avif
+photo4.jpg
+medium-photo4.avif
 ```
-
-In the above example, thumbnails are used for `picture1` and `photo3`; the original is used for `photo2`.
 
 ###  Gallery Featured Image(s)
 
@@ -80,7 +82,7 @@ someSection/anotherAlbum/photo4.avif <-- Gallery in 'someSection'
 someSection/anotherAlbum/photo5.avif
 ```
 
-In each gallery you can choose to either display all photos of each immediate child gallery *or* display a thumbnail of one image from each child gallery that links to the child gallery. In the above example the home page can be configured to show `photo1.avif` and *all* of the photos in `myAlbum` and photos in the `someSection` bundle or to just show `photo1.avif` and one featured thumbnail for each of `myAlbum` and `someSection`. In either case, photos from `another Album` are not immediately shown on the home page. By default, the thumbnail used will be from the first photograph in the bundle based on lexicographic order. In the above example, the thumbnail for `myAlbum` will be of `photo2.avif` and the thumbnail for `someSection` will be `photo4.avif`.
+In each gallery you can choose to either display all photos of each immediate child gallery *or* display a featured image from each child gallery that links to the child gallery. In the above example the home page can be configured to show `photo1.avif` and *all* of the photos in `myAlbum` and photos in the `someSection` bundle or to just show `photo1.avif` and one featured image for each of `myAlbum` and `someSection`. In either case, photos from `another Album` are not immediately shown on the home page. By default, the featured image used will be from the first photograph in the bundle based on lexicographic order. In the above example, the featured image for `myAlbum` will be of `photo2.avif` and the featured image for `someSection` will be `photo4.avif`.
 
 This choice can be set site wide via the site configuration file or on a per section basis. To configure site wide,
 
