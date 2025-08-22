@@ -68,18 +68,19 @@ photo4.jpg
 medium-photo4.avif
 ```
 
-### Format aware delivery.
+### Alternate fallback format
 
-The theme additionally uses the HTML picture and source elements to optionally deliver different file formats to the user agent. For example, this can be used to prefer delivering avif or webp images with JPG as a fallback. In order to take advantage of this feature place additional copies of your images in the content tree structure. The names of the images must match exactly, differing only by file extension. For example,
+The theme additionally uses the HTML picture and source elements to optionally deliver a backup file format. The theme is optimally designed for use with a modern, widely supported, image format like webp or avif. It can be useful though to provide a backup in the unlikely event that a client does not support these. The backup file should be the same dimensions as the original image, use the same name prefixed with 'alt-'. Please see the following example,
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-picture1.jpg
+alt-picture1.jpg
 small-picture1.avif
 small-picture1.jpg
 photo2.webp
-photo3.jpg
+photo3.avif
+alt-photo3.png
 small-photo3.avif
 medium-photo3.avif
 photo4.jpg
@@ -88,7 +89,7 @@ medium-photo4.avif
 
 ####
 
-**Limitations** the same sized images must be provided for each format. In other words if there is a small- and original photo in avif then a small- and original photo must *only* be provided in JPG. Mixing and matching different sized images with different file extensions results in undefined behavior.
+**Limitations** the theme does not consider the back up format for use in size aware delivery. The back up image is used for gallery featured images and gallery tiles. When the user clicks on the image in a gallery though they will be taken to the primary format file.
 
 ###  Gallery Featured Image(s)
 

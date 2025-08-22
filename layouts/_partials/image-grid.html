@@ -10,12 +10,25 @@
     <li class="grid-item">
       <a href="{{ .href }}">
         <picture>
-          {{ if and .small .medium }}
-            <source size="(width <= 1024px) 280px, 320px" srcset="{{ .small }} 400w, {{ .medium }} 800w">
-          {{ else if .small }}
-            <source size="(width <= 1024px) 280px" srcset="{{ .small }} 400w">
+          {{/* Primary size-aware source with type derived from primary format */}}
+          {{ $primaryType := "" }}
+          {{ $extSrc := lower (replaceRE "^.+\\.([^.]+)$" "$1" .src) }}
+          {{ if or (eq $extSrc "jpg") (eq $extSrc "jpeg") }}
+            {{ $primaryType = "image/jpeg" }}
+          {{ else }}
+            {{ $primaryType = printf "image/%s" $extSrc }}
           {{ end }}
-          <img loading="lazy" src="{{ .src }}" alt="{{ .alt }}" />
+          {{ if and .small .medium }}
+            <source type="{{ $primaryType }}" size="(width <= 1024px) 280px, 320px" srcset="{{ .small }} 400w, {{ .medium }} 800w">
+          {{ else if .small }}
+            <source type="{{ $primaryType }}" size="(width <= 1024px) 280px" srcset="{{ .small }} 400w">
+          {{ end }}
+          {{/* Alternate fallback format: single original, no size-aware srcset */}}
+          {{ $imgSrc := .src }}
+          {{ with .altFormat }}
+            {{ $imgSrc = .src }}
+          {{ end }}
+          <img loading="lazy" src="{{ $imgSrc }}" alt="{{ .alt }}" />
         </picture>
       </a>
     </li>

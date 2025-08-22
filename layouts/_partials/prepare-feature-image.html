@@ -23,6 +23,7 @@
      only same-extension variants are paired. */}}
 {{ $smallIndex := dict }}
 {{ $mediumIndex := dict }}
+{{ $altIndex := dict }}
 {{ $candidates := slice }}
 
 {{ range $imgs }}
@@ -33,6 +34,10 @@
   {{ else if hasPrefix $lname "medium-" }}
     {{ $orig := replaceRE "^medium-(.+)$" "$1" $lname }}
     {{ $mediumIndex = merge $mediumIndex (dict $orig .) }}
+  {{ else if hasPrefix $lname "alt-" }}
+    {{ $orig := replaceRE "^alt-(.+)$" "$1" $lname }}
+    {{ $base := lower (replaceRE "\\.[^.]+$" "" $orig) }}
+    {{ $altIndex = merge $altIndex (dict $base .) }}
   {{ else }}
     {{ $candidates = $candidates | append . }}
   {{ end }}
@@ -53,6 +58,18 @@
   {{ $dict := dict "src" $src "href" $page.RelPermalink "alt" $alt }}
   {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
   {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
+  {{/* Attach alternate fallback format when available (different extension). */}}
+  {{ $baseKey := lower (replaceRE "\\.[^.]+$" "" $key) }}
+  {{ with index $altIndex $baseKey }}
+    {{ $altRes := . }}
+    {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $key) }}
+    {{ $altName := lower $altRes.Name }}
+    {{ $altExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $altName) }}
+    {{ if ne $altExt $origExt }}
+      {{ $mime := cond (or (eq $altExt "jpg") (eq $altExt "jpeg")) "image/jpeg" (printf "image/%s" $altExt) }}
+      {{ $dict = merge $dict (dict "altFormat" (dict "src" $altRes.RelPermalink "type" $mime)) }}
+    {{ end }}
+  {{ end }}
   {{ $items = $items | append $dict }}
 {{ end }}
 

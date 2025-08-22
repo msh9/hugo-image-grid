@@ -24,6 +24,7 @@
      with the same basename AND extension. */}}
 {{ $smallIndex := dict }}
 {{ $mediumIndex := dict }}
+{{ $altIndex := dict }}
 {{ range $imgs }}
   {{ $lname := lower .Name }}
   {{ if hasPrefix $lname "small-" }}
@@ -32,13 +33,17 @@
   {{ else if hasPrefix $lname "medium-" }}
     {{ $orig := replaceRE "^medium-(.+)$" "$1" $lname }}
     {{ $mediumIndex = merge $mediumIndex (dict $orig .) }}
+  {{ else if hasPrefix $lname "alt-" }}
+    {{ $orig := replaceRE "^alt-(.+)$" "$1" $lname }}
+    {{ $base := lower (replaceRE "\\.[^.]+$" "" $orig) }}
+    {{ $altIndex = merge $altIndex (dict $base .) }}
   {{ end }}
 {{ end }}
 
 {{ range $imgs }}
   {{ $name := .Name }}
   {{ $lname := lower $name }}
-  {{ if and (not (hasPrefix $lname "small-")) (not (hasPrefix $lname "medium-")) }}
+  {{ if and (not (hasPrefix $lname "small-")) (not (hasPrefix $lname "medium-")) (not (hasPrefix $lname "alt-")) }}
     {{ $src := .RelPermalink }}
     {{ $small := "" }}
     {{ with index $smallIndex $lname }}{{ $small = .RelPermalink }}{{ end }}
@@ -48,6 +53,18 @@
     {{ $dict := dict "src" $src "href" .RelPermalink "alt" $alt }}
     {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
     {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
+    {{/* Attach alternate fallback format when available (different extension). */}}
+    {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
+    {{ with index $altIndex $base }}
+      {{ $altRes := . }}
+      {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $lname) }}
+      {{ $altName := lower $altRes.Name }}
+      {{ $altExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $altName) }}
+      {{ if ne $altExt $origExt }}
+        {{ $mime := cond (or (eq $altExt "jpg") (eq $altExt "jpeg")) "image/jpeg" (printf "image/%s" $altExt) }}
+        {{ $dict = merge $dict (dict "altFormat" (dict "src" $altRes.RelPermalink "type" $mime)) }}
+      {{ end }}
+    {{ end }}
     {{ $items = $items | append $dict }}
   {{ end }}
 {{ end }}
