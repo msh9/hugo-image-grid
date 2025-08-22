@@ -45,51 +45,59 @@ Alt text uses the resource title when available, or falls back to the filename (
 
 ### Size aware images
 
-The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. The theme can use up to three files per image format. As an example, if I have an image in a resource bundle called 'photo1.avif' then I can also provide 'small-photo1.avif' and 'medium-photo1.avif'. Generally, the theme expects 'small-*' image to be be ~400px wide and 'medium-*' images to be 800px wide.
+The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Supply optional width-suffixed variants alongside your original image.
 
 How it works:
-- Provide up to three files per image within the same bundle: the original, small, and medium
-- 'small-' should be 400px wide
-- 'medium-' should be 800px wide
-- All images should be of the same file type and use the same file extension, e.g. all '...jpg' or '...avif' etc.
-- You can provide less than three, e.g. the original and just a 'small-' image.
+- Provide up to three files per image within the same bundle: the original, 400w, and 800w variants.
+- Naming:
+  - Original: `<base>.<ext>`
+  - 400px wide: `<base>-400w.<ext>`
+  - 800px wide: `<base>-800w.<ext>`
+- All size variants must use the same file extension as the original (e.g., all `.avif` or all `.jpg`).
+- You can provide fewer than three, e.g. the original and just a `-400w` variant.
 
 Example:
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-small-picture1.avif
+picture1-400w.avif
 photo2.webp
 photo3.jpg
-small-photo3.avif
-medium-photo3.avif
+photo3-400w.jpg
+photo3-800w.jpg
 photo4.jpg
-medium-photo4.avif
+photo4-800w.jpg
 ```
 
 ### Alternate fallback format
 
-The theme additionally uses the HTML picture and source elements to optionally deliver a backup file format. The theme is optimally designed for use with a modern, widely supported, image format like webp or avif. It can be useful though to provide a backup in the unlikely event that a client does not support these. The backup file should be the same dimensions as the original image, use the same name prefixed with 'alt-'. Please see the following example,
+Optionally provide a backup file format using the same basename with a different extension. The theme is optimally designed for modern formats like AVIF or WebP, but you can include a fallback (e.g., JPEG or PNG) for wider compatibility. Use the same basename; no special prefixes are required.
+
+Rules:
+- Fallback format: same basename, different extension, e.g. `photo.avif` ↔ `photo.jpg`.
+- When width variants are present, you may also provide fallbacks per width (e.g., `photo-400w.jpg`), but the theme does not use fallback formats for size-aware delivery (see limitation below).
+
+Example:
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-alt-picture1.jpg
-small-picture1.avif
-small-picture1.jpg
+picture1.jpg            # fallback format (same basename)
+picture1-400w.avif
+picture1-400w.jpg       # optional, not used for size-aware fallback
 photo2.webp
 photo3.avif
-alt-photo3.png
-small-photo3.avif
-medium-photo3.avif
+photo3.png              # fallback format
+photo3-400w.avif
+photo3-800w.avif
 photo4.jpg
-medium-photo4.avif
+photo4-800w.jpg
 ```
 
 ####
 
-**Limitations** the theme does not consider the back up format for use in size aware delivery. The back up image is used for gallery featured images and gallery tiles. When the user clicks on the image in a gallery though they will be taken to the primary format file.
+**Limitations** the fallback format is not used for size‑aware delivery. It is applied as the `<img>` fallback in the gallery tile/featured image. Clicking the tile opens the primary format file.
 
 ###  Gallery Featured Image(s)
 

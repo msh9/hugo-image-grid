@@ -1,16 +1,26 @@
 {{/*
-  Home page helper: returns a normalized slice of dict items
-  for rendering by image-grid.html.
+  prepare-bundle-images: returns a normalized slice of dict items
+  for rendering by image-grid.html using width-suffix variants and
+  same-basename fallback formats.
+
+  Naming conventions handled here:
+    - Size variants (same extension):
+        <base>-400w.<ext>, <base>-800w.<ext>
+    - Primary/original (same extension):
+        <base>.<ext>
+    - Fallback format (different extension, same basename):
+        <base>.<alt-ext>
 
   Input:
     - page/section/etc to get resources from as .
 
   Output item shape (normalized):
     - src: string (original image URL)
-    - small: string (optional, URL for small- variant or thumbnail- fallback)
-    - medium: string (optional, URL for medium- variant)
+    - small: string (optional, URL for 400w variant)
+    - medium: string (optional, URL for 800w variant)
     - href: string (link target for the tile)
     - alt: string (resource Title or filename without extension)
+    - altFormat: dict { src, type } (optional; same-basename, different extension)
 */}}
 
 {{ $page := . }}
@@ -19,50 +29,68 @@
 {{/* Collect this page's image resources */}}
 {{ $imgs := $page.Resources.ByType "image" }}
 
-{{/* Build variant indexes: key = original filename (lower, with ext)
-     This enforces that small-/medium- variants only match originals
-     with the same basename AND extension. */}}
-{{ $smallIndex := dict }}
-{{ $mediumIndex := dict }}
-{{ $altIndex := dict }}
+{{/* Build indexes:
+     - width indexes keyed by "<base>.<ext>" for 400w/800w
+     - plain (non-width-suffixed) images grouped by <base> (no ext)
+*/}}
+{{ $w400Index := dict }}
+{{ $w800Index := dict }}
+{{ $plainByBase := dict }}
 {{ range $imgs }}
   {{ $lname := lower .Name }}
-  {{ if hasPrefix $lname "small-" }}
-    {{ $orig := replaceRE "^small-(.+)$" "$1" $lname }}
-    {{ $smallIndex = merge $smallIndex (dict $orig .) }}
-  {{ else if hasPrefix $lname "medium-" }}
-    {{ $orig := replaceRE "^medium-(.+)$" "$1" $lname }}
-    {{ $mediumIndex = merge $mediumIndex (dict $orig .) }}
-  {{ else if hasPrefix $lname "alt-" }}
-    {{ $orig := replaceRE "^alt-(.+)$" "$1" $lname }}
-    {{ $base := lower (replaceRE "\\.[^.]+$" "" $orig) }}
-    {{ $altIndex = merge $altIndex (dict $base .) }}
+  {{ $m := findRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" $lname 1 }}
+  {{ if gt (len $m) 0 }}
+    {{/* Width-suffixed variant */}}
+    {{ $base := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$1" $lname }}
+    {{ $w := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$2" $lname }}
+    {{ $ext := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$3" $lname }}
+    {{ $origKey := printf "%s.%s" $base $ext }}
+    {{ if eq $w "400" }}
+      {{ $w400Index = merge $w400Index (dict $origKey .) }}
+    {{ else if eq $w "800" }}
+      {{ $w800Index = merge $w800Index (dict $origKey .) }}
+    {{ end }}
+  {{ else }}
+    {{/* Plain image (potential original or fallback format) */}}
+    {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
+    {{ $existing := index $plainByBase $base }}
+    {{ if $existing }}
+      {{/* Ensure slice type even if existing was a single resource */}}
+      {{ $plainByBase = merge $plainByBase (dict $base (slice $existing .)) }}
+    {{ else }}
+      {{ $plainByBase = merge $plainByBase (dict $base (slice .)) }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
 {{ range $imgs }}
   {{ $name := .Name }}
   {{ $lname := lower $name }}
-  {{ if and (not (hasPrefix $lname "small-")) (not (hasPrefix $lname "medium-")) (not (hasPrefix $lname "alt-")) }}
+  {{/* Only treat non-width-suffixed images as originals */}}
+  {{ $isWidth := gt (len (findRE "^.+-[0-9]{3,4}w\\.[^.]+$" $lname 1)) 0 }}
+  {{ if not $isWidth }}
     {{ $src := .RelPermalink }}
     {{ $small := "" }}
-    {{ with index $smallIndex $lname }}{{ $small = .RelPermalink }}{{ end }}
     {{ $medium := "" }}
-    {{ with index $mediumIndex $lname }}{{ $medium = .RelPermalink }}{{ end }}
+    {{/* Size-aware variants (same extension) */}}
+    {{ with index $w400Index $lname }}{{ $small = .RelPermalink }}{{ end }}
+    {{ with index $w800Index $lname }}{{ $medium = .RelPermalink }}{{ end }}
     {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
     {{ $dict := dict "src" $src "href" .RelPermalink "alt" $alt }}
     {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
     {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
-    {{/* Attach alternate fallback format when available (different extension). */}}
+    {{/* Attach fallback format: same basename, different extension (plain, no width suffix). */}}
     {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
-    {{ with index $altIndex $base }}
-      {{ $altRes := . }}
-      {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $lname) }}
-      {{ $altName := lower $altRes.Name }}
+    {{ $group := index $plainByBase $base }}
+    {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $lname) }}
+    {{ $picked := false }}
+    {{ range $group }}
+      {{ $altName := $lname }}
       {{ $altExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $altName) }}
-      {{ if ne $altExt $origExt }}
+      {{ if and (ne $altExt $origExt) (not $picked) }}
         {{ $mime := cond (or (eq $altExt "jpg") (eq $altExt "jpeg")) "image/jpeg" (printf "image/%s" $altExt) }}
-        {{ $dict = merge $dict (dict "altFormat" (dict "src" $altRes.RelPermalink "type" $mime)) }}
+        {{ $dict = merge $dict (dict "altFormat" (dict "src" .RelPermalink "type" $mime)) }}
+        {{ $picked = true }}
       {{ end }}
     {{ end }}
     {{ $items = $items | append $dict }}
