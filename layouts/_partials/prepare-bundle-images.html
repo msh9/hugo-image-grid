@@ -6,8 +6,10 @@
     - page/section/etc to get resources from as .
 
   Output item shape (normalized):
-    - src: string (thumbnail if available, else original)
-    - href: string (link to the containing page)
+    - src: string (original image URL)
+    - small: string (optional, URL for small- variant or thumbnail- fallback)
+    - medium: string (optional, URL for medium- variant)
+    - href: string (link target for the tile)
     - alt: string (resource Title or filename without extension)
 */}}
 
@@ -17,24 +19,35 @@
 {{/* Collect this page's image resources */}}
 {{ $imgs := $page.Resources.ByType "image" }}
 
-{{/* Build thumbnail index: key = base name (lower, no ext) */}}
-{{ $thumbIndex := dict }}
+{{/* Build variant indexes: key = base name (lower, no ext) */}}
+{{ $smallIndex := dict }}
+{{ $mediumIndex := dict }}
 {{ range $imgs }}
   {{ $lname := lower .Name }}
-  {{ if hasPrefix $lname "thumbnail-" }}
-    {{ $base := replaceRE "^thumbnail-(.+)\\..+$" "$1" $lname }}
-    {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+  {{ if hasPrefix $lname "small-" }}
+    {{ $base := replaceRE "^small-(.+)\\..+$" "$1" $lname }}
+    {{ $smallIndex = merge $smallIndex (dict $base .) }}
+  {{ else if hasPrefix $lname "medium-" }}
+    {{ $base := replaceRE "^medium-(.+)\\..+$" "$1" $lname }}
+    {{ $mediumIndex = merge $mediumIndex (dict $base .) }}
   {{ end }}
 {{ end }}
 
 {{ range $imgs }}
   {{ $name := .Name }}
-  {{ if not (hasPrefix (lower $name) "thumbnail-") }}
+  {{ $lname := lower $name }}
+  {{ if and (not (hasPrefix $lname "small-")) (not (hasPrefix $lname "medium-")) }}
     {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
     {{ $src := .RelPermalink }}
-    {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
+    {{ $small := "" }}
+    {{ with index $smallIndex $base }}{{ $small = .RelPermalink }}{{ end }}
+    {{ $medium := "" }}
+    {{ with index $mediumIndex $base }}{{ $medium = .RelPermalink }}{{ end }}
     {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
-    {{ $items = $items | append (dict "src" $src "href" .RelPermalink "alt" $alt) }}
+    {{ $dict := dict "src" $src "href" .RelPermalink "alt" $alt }}
+    {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
+    {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
+    {{ $items = $items | append $dict }}
   {{ end }}
 {{ end }}
 

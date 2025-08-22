@@ -6,7 +6,9 @@
     - The page to get resources from passed as .
 
   Output items:
-    - src: image URL to display (thumbnail if available)
+    - src: original image URL to display
+    - small: optional URL for small- variant (or thumbnail- fallback)
+    - medium: optional URL for medium- variant
     - href: link target (image URL for list pages)
     - alt: alt text (title or filename)
 */}}
@@ -16,15 +18,19 @@
 {{ $items := slice }}
 
 {{ $imgs := $page.Resources.ByType "image" }}
-{{/* thumbnail index for page (prefix-based) */}}
-{{ $thumbIndex := dict }}
+{{/* variant indexes for page (prefix-based) */}}
+{{ $smallIndex := dict }}
+{{ $mediumIndex := dict }}
 {{ $candidates := slice }}
 
 {{ range $imgs }}
   {{ $lname := lower .Name }}
-  {{ if hasPrefix $lname "thumbnail-" }}
-    {{ $base := replaceRE "^thumbnail-(.+)\\..+$" "$1" $lname }}
-    {{ $thumbIndex = merge $thumbIndex (dict $base .) }}
+  {{ if hasPrefix $lname "small-" }}
+    {{ $base := replaceRE "^small-(.+)\\..+$" "$1" $lname }}
+    {{ $smallIndex = merge $smallIndex (dict $base .) }}
+  {{ else if hasPrefix $lname "medium-" }}
+    {{ $base := replaceRE "^medium-(.+)\\..+$" "$1" $lname }}
+    {{ $mediumIndex = merge $mediumIndex (dict $base .) }}
   {{ else }}
     {{ $candidates = $candidates | append . }}
   {{ end }}
@@ -36,9 +42,15 @@
   {{ $name := $featuredImage.Name }}
   {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
   {{ $src := $featuredImage.RelPermalink }}
-  {{ with index $thumbIndex $base }}{{ $src = .RelPermalink }}{{ end }}
-  {{ $alt := cond (ne $featuredImage.Title "") $featuredImage.Title (replaceRE "\\.[^.]+$" "" $name) }}
-  {{ $items = $items | append (dict "src" $src "href" $page.RelPermalink "alt" $alt) }}
+  {{ $small := "" }}
+  {{ with index $smallIndex $base }}{{ $small = .RelPermalink }}{{ end }}
+  {{ $medium := "" }}
+  {{ with index $mediumIndex $base }}{{ $medium = .RelPermalink }}{{ end }}
+  {{ $alt := cond (ne $featuredImage.Title "") $featuredImage.Title $base }}
+  {{ $dict := dict "src" $src "href" $page.RelPermalink "alt" $alt }}
+  {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
+  {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
+  {{ $items = $items | append $dict }}
 {{ end }}
 
 {{ return $items }}

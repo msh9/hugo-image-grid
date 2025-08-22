@@ -9,7 +9,14 @@
   {{ range $items }}
     <li class="grid-item">
       <a href="{{ .href }}">
-        <img loading="lazy" src="{{ .src }}" alt="{{ .alt }}" />
+        <picture>
+          {{ if and .small .medium }}
+            <source size="(width <= 1024px) 280px, 320px" srcset="{{ .small }} 400w, {{ .medium }} 800w">
+          {{ else if .small }}
+            <source size="(width <= 1024px) 280px" srcset="{{ .small }} 400w">
+          {{ end }}
+          <img loading="lazy" src="{{ .src }}" alt="{{ .alt }}" />
+        </picture>
       </a>
     </li>
   {{ end }}

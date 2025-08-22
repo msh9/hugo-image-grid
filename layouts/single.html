@@ -3,16 +3,6 @@
 
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
 
-  {{ $items := slice }}
-  {{ $imgs := .Resources.ByType "image" }}
-  {{ range $imgs }}
-    {{ $name := .Name }}
-    {{ if not (hasPrefix (lower $name) "thumbnail-") }}
-      {{ $src := .RelPermalink }}
-      {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
-      {{ $items = $items | append (dict "src" $src "href" $src "alt" $alt) }}
-    {{ end }}
-  {{ end }}
-
+  {{ $items := partial "prepare-bundle-images.html" . }}
   {{ partial "image-grid.html" $items }}
 {{ end }}
