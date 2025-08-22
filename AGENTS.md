@@ -16,7 +16,7 @@
 - Indentation: 2 spaces; keep templates readable and minimal.
 - Hugo templates: Prefer partials and normalized inputs. Business logic in helpers; presentation in components.
 - CSS: Component‑scoped rules; avoid heavy frameworks. Use semantic class names.
-- Images: Do not add Hugo image processing. Thumbnails are pre-generated and detected via `thumbnail-<original name>.<ext>` naming (e.g., `thumbnail-photo.avif` for `photo.avif`).
+- Images: Do not add Hugo image processing. 
 
 ## Testing Guidelines
 - No formal test suite. Validate by running `hugo build -D` and inspecting output for errors.
