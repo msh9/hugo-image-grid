@@ -18,7 +18,9 @@
 {{ $items := slice }}
 
 {{ $imgs := $page.Resources.ByType "image" }}
-{{/* variant indexes for page (prefix-based) */}}
+{{/* variant indexes for page (prefix-based)
+     Keys are original filenames (lowercase, WITH extension) to ensure
+     only same-extension variants are paired. */}}
 {{ $smallIndex := dict }}
 {{ $mediumIndex := dict }}
 {{ $candidates := slice }}
@@ -26,11 +28,11 @@
 {{ range $imgs }}
   {{ $lname := lower .Name }}
   {{ if hasPrefix $lname "small-" }}
-    {{ $base := replaceRE "^small-(.+)\\..+$" "$1" $lname }}
-    {{ $smallIndex = merge $smallIndex (dict $base .) }}
+    {{ $orig := replaceRE "^small-(.+)$" "$1" $lname }}
+    {{ $smallIndex = merge $smallIndex (dict $orig .) }}
   {{ else if hasPrefix $lname "medium-" }}
-    {{ $base := replaceRE "^medium-(.+)\\..+$" "$1" $lname }}
-    {{ $mediumIndex = merge $mediumIndex (dict $base .) }}
+    {{ $orig := replaceRE "^medium-(.+)$" "$1" $lname }}
+    {{ $mediumIndex = merge $mediumIndex (dict $orig .) }}
   {{ else }}
     {{ $candidates = $candidates | append . }}
   {{ end }}
@@ -40,12 +42,13 @@
 {{ with index $sorted 0 }}
   {{ $featuredImage := . }}
   {{ $name := $featuredImage.Name }}
+  {{ $key := lower $name }}
   {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
   {{ $src := $featuredImage.RelPermalink }}
   {{ $small := "" }}
-  {{ with index $smallIndex $base }}{{ $small = .RelPermalink }}{{ end }}
+  {{ with index $smallIndex $key }}{{ $small = .RelPermalink }}{{ end }}
   {{ $medium := "" }}
-  {{ with index $mediumIndex $base }}{{ $medium = .RelPermalink }}{{ end }}
+  {{ with index $mediumIndex $key }}{{ $medium = .RelPermalink }}{{ end }}
   {{ $alt := cond (ne $featuredImage.Title "") $featuredImage.Title $base }}
   {{ $dict := dict "src" $src "href" $page.RelPermalink "alt" $alt }}
   {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}

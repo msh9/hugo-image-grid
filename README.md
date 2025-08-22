@@ -68,6 +68,28 @@ photo4.jpg
 medium-photo4.avif
 ```
 
+### Format aware delivery.
+
+The theme additionally uses the HTML picture and source elements to optionally deliver different file formats to the user agent. For example, this can be used to prefer delivering avif or webp images with JPG as a fallback. In order to take advantage of this feature place additional copies of your images in the content tree structure. The names of the images must match exactly, differing only by file extension. For example,
+
+```
+/exampleSite/content/myalbum/
+picture1.avif
+picture1.jpg
+small-picture1.avif
+small-picture1.jpg
+photo2.webp
+photo3.jpg
+small-photo3.avif
+medium-photo3.avif
+photo4.jpg
+medium-photo4.avif
+```
+
+####
+
+**Limitations** the same sized images must be provided for each format. In other words if there is a small- and original photo in avif then a small- and original photo must *only* be provided in JPG. Mixing and matching different sized images with different file extensions results in undefined behavior.
+
 ###  Gallery Featured Image(s)
 
 hugo-image-grid treats page and section bundles as galleries within the directory structure. For example,
