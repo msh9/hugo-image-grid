@@ -3,7 +3,7 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-    - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+    - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
 */}}
 
 <ul class="grid" aria-label="Image grid">
@@ -11,7 +11,11 @@
     {{ with $original := index $resources "original" }}
     <li class="grid-item">
       {{ $originalLink := $original.RelPermalink }}
-      <a href="{{ $originalLink }}">
+      {{ with $parentLink := index $resources "parentLink" }}
+        <a href="{{ $parentLink }}">
+      {{ else }}
+        <a href="{{ $originalLink }}">
+      {{ end }}
         <picture>
           {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
           {{ with $small := index $resources "400w" }}

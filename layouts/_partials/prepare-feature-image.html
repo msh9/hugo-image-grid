@@ -15,7 +15,7 @@
 
   Output item shape (normalized):
     - Dictionary of <pageName><base> -->
-      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parentLink --> string
 */}}
 
 {{ $featuredImage := dict }}
@@ -25,7 +25,7 @@
     {{ $fileName := path.Base .Key }}
     {{ $isSpecial := findRE `^(.+)-(400w)?(800w)?(alt)?\.([^.]+)$` $fileName }}
     {{ if not $isSpecial }}
-      {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" .)) }}
+      {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" . "parentLink" $.Permalink)) }}
       {{ break }} 
     {{ end }}
 {{ end }}

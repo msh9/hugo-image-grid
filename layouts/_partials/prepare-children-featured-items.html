@@ -19,8 +19,7 @@
 {{ range $parent.RegularPages }}{{ $children = $children | append . }}{{ end }}
 
 {{ range $children }}
-  {{ $child := . }}
-  {{ $featuredImage := partial "prepare-feature-image.html" $child }}
+  {{ $featuredImage := partial "prepare-feature-image.html" . }}
   {{ $items = merge $items $featuredImage }}
 {{ end }}
 
