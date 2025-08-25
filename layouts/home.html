@@ -7,7 +7,7 @@
 
   {{/* Home root images */}}
   {{ $rootItems := partial "prepare-bundle-images.html" . }}
-  <section>
+  <section class="gallery-section">
     <h2 class="section-title">Non-Gallery Photos</h2>
     {{ partial "image-grid.html" $rootItems }}
   </section>
@@ -16,7 +16,7 @@
   {{ if $useFeatured }}
     {{/* When using featured images, show child galleries as a single grid */}}
     {{ $galleryItems := partial "prepare-children-featured-items.html" . }}
-    <section>
+    <section class="gallery-section">
       <h2 class="section-title">Galleries</h2>
       {{ partial "image-grid.html" $galleryItems }}
     </section>
@@ -26,7 +26,7 @@
     {{ range .RegularPages }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
 
     {{ range $rootChildren }}
-      <section>
+      <section class="gallery-section">
         <h2 class="section-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
         {{ $items := partial "prepare-bundle-images.html" . }}
         {{ partial "image-grid.html" $items }}

@@ -6,10 +6,10 @@
     - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
 */}}
 
-<ul class="grid" aria-label="Image grid">
+<div class="grid" aria-label="Image grid">
   {{ range $i, $resources := . }}
     {{ with $original := index $resources "original" }}
-    <li class="grid-item">
+    <div class="grid-item">
       {{ $originalLink := $original.RelPermalink }}
       {{ with $parentLink := index $resources "parentLink" }}
         <a href="{{ $parentLink }}">
@@ -37,7 +37,7 @@
           <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $original.Name }}" />
         </picture>
       </a>
-    </li>
+    </div>
     {{ end }}
   {{ end }}
-</ul>
+</div>
