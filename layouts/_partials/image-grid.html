@@ -4,33 +4,34 @@
   No lookup or business logic here; callers must normalize.
 */}}
 
-{{ $items := . | default (slice) }}
 <ul class="grid" aria-label="Image grid">
-  {{ range $items }}
+  {{ range $i, $resources := . }}
+    {{ with $original := index $resources "original" }}
     <li class="grid-item">
-      <a href="{{ .href }}">
+      {{ $originalLink := $original.RelPermalink }}
+      <a href="{{ $originalLink }}">
         <picture>
-          {{/* Primary size-aware source with type derived from primary format */}}
-          {{ $primaryType := "" }}
-          {{ $extSrc := lower (replaceRE "^.+\\.([^.]+)$" "$1" .src) }}
-          {{ if or (eq $extSrc "jpg") (eq $extSrc "jpeg") }}
-            {{ $primaryType = "image/jpeg" }}
+          {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
+          {{ with $small := index $resources "400w" }}
+            {{ with $medium := index $resources "800w" }}
+              <source type="{{ $small.MediaType.Type }}" size="(width <= 1024px) 280px, 320px" srcset="{{ $small.RelPermalink }} 400w, {{ $medium.RelPermalink }} 800w">
+            {{ else }}
+              <source type="{{ $small.MediaType.Type }}" size="(width <= 1024px) 280px" srcset="{{ $small.RelPermalink }} 400w">
+            {{ end }}
           {{ else }}
-            {{ $primaryType = printf "image/%s" $extSrc }}
-          {{ end }}
-          {{ if and .small .medium }}
-            <source type="{{ $primaryType }}" size="(width <= 1024px) 280px, 320px" srcset="{{ .small }} 400w, {{ .medium }} 800w">
-          {{ else if .small }}
-            <source type="{{ $primaryType }}" size="(width <= 1024px) 280px" srcset="{{ .small }} 400w">
+            {{ with $medium := index $resources "800w" }}
+              <source type="{{ $medium.MediaType.Type }}" size="(width <= 1024px) 280px" srcset="{{ $medium.RelPermalink }} 800w">
+            {{ end }}
           {{ end }}
           {{/* Alternate fallback format: single original, no size-aware srcset */}}
-          {{ $imgSrc := .src }}
-          {{ with .altFormat }}
-            {{ $imgSrc = .src }}
+          {{ $imgSrc := $originalLink }}
+          {{ with $alt := index $resources "alt" }}
+            {{ $imgSrc = $alt.RelPermaLink }}
           {{ end }}
-          <img loading="lazy" src="{{ $imgSrc }}" alt="{{ .alt }}" />
+          <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $original.Name }}" />
         </picture>
       </a>
     </li>
+    {{ end }}
   {{ end }}
 </ul>

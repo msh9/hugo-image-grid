@@ -8,94 +8,64 @@
         <base>-400w.<ext>, <base>-800w.<ext>
     - Primary/original (same extension):
         <base>.<ext>
-    - Fallback format (different extension, same basename):
-        <base>.<alt-ext>
+    - Fallback format:
+        <base>-alt.<ext>
 
   Input:
     - page/section/etc to get resources from as .
 
   Output item shape (normalized):
-    - src: string (original image URL)
-    - small: string (optional, URL for 400w variant)
-    - medium: string (optional, URL for 800w variant)
-    - href: string (link target for the tile)
-    - alt: string (resource Title or filename without extension)
-    - altFormat: dict { src, type } (optional; same-basename, different extension)
+    - Dictionary of <base> -->
+      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+      
 */}}
 
-{{ $page := . }}
 
-{{ $items := slice }}
-{{/* Collect this page's image resources */}}
-{{ $imgs := $page.Resources.ByType "image" }}
-
-{{/* Build indexes:
-     - width indexes keyed by "<base>.<ext>" for 400w/800w
-     - plain (non-width-suffixed) images grouped by <base> (no ext)
+{{/*
+  We organize the bundle images in two passes.
+  First pass: Find items that match our alt and size variant naming standards, these are added the alt images slice to be iterated later. For items that don't match those naming patterns, we add them to an originals dictionary keys by the <base> filename component described above.
+  Second passed: Iterate over the alternative images we found and lookup originals by key, when found merge the two dictionary objects all back into the baseImages dictionary. 
 */}}
-{{ $w400Index := dict }}
-{{ $w800Index := dict }}
-{{ $plainByBase := dict }}
-{{ range $imgs }}
-  {{ $lname := lower .Name }}
-  {{ $m := findRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" $lname 1 }}
-  {{ if gt (len $m) 0 }}
-    {{/* Width-suffixed variant */}}
-    {{ $base := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$1" $lname }}
-    {{ $w := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$2" $lname }}
-    {{ $ext := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$3" $lname }}
-    {{ $origKey := printf "%s.%s" $base $ext }}
-    {{ if eq $w "400" }}
-      {{ $w400Index = merge $w400Index (dict $origKey .) }}
-    {{ else if eq $w "800" }}
-      {{ $w800Index = merge $w800Index (dict $origKey .) }}
-    {{ end }}
+
+{{ $altImages := slice }}
+{{ $baseImages := dict }}
+{{ range .Resources.ByType "image" }}
+  {{/*
+    We use .Key here because we want to always looks at the original
+    file name, regardless of whether the end user provided front matter
+  */}}
+  {{ $lowerImageName := .Key | path.Base }}
+  {{/* 
+    We look for some file name followed by a hyphen, following by one of
+    400w, 800w, or alt. If the expression does not match at all we assume 
+    this is an 'original' photo.
+  */}}
+  {{ $suffixMatches := findRESubmatch `^(.+)-(400w)?(800w)?(alt)?\.([^.]+)$` $lowerImageName }}
+  {{ if and $suffixMatches (index $suffixMatches 0) }}
+    {{ $suffixMatch := index $suffixMatches 0 }}
+    {{ if (index $suffixMatch 2) }} 
+      {{/* 400w */}}
+      {{ $altImages = $altImages | append (dict "400w" . "baseFileName" (index $suffixMatch 1)) }}
+    {{ else if (index $suffixMatch 3) }} 
+      {{/* 800w */}}
+      {{ $altImages = $altImages | append (dict "800w" . "baseFileName" (index $suffixMatch 1)) }}
+    {{ else if (index $suffixMatch 4) }} 
+      {{/* alt */}}
+      {{ $altImages = $altImages | append (dict "alt" . "baseFileName" (index $suffixMatch 1)) }}
+    {{ end }} 
+    {{/* unknown / no match */}}
   {{ else }}
-    {{/* Plain image (potential original or fallback format) */}}
-    {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
-    {{ $existing := index $plainByBase $base }}
-    {{ if $existing }}
-      {{/* Ensure slice type even if existing was a single resource */}}
-      {{ $plainByBase = merge $plainByBase (dict $base (slice $existing .)) }}
-    {{ else }}
-      {{ $plainByBase = merge $plainByBase (dict $base (slice .)) }}
-    {{ end }}
+    {{ $forDisplay := dict (.Key | path.BaseName) (dict "original" .) }}
+    {{ $baseImages = $baseImages | merge $forDisplay }}
   {{ end }}
 {{ end }}
 
-{{ range $imgs }}
-  {{ $name := .Name }}
-  {{ $lname := lower $name }}
-  {{/* Only treat non-width-suffixed images as originals */}}
-  {{ $isWidth := gt (len (findRE "^.+-[0-9]{3,4}w\\.[^.]+$" $lname 1)) 0 }}
-  {{ if not $isWidth }}
-    {{ $src := .RelPermalink }}
-    {{ $small := "" }}
-    {{ $medium := "" }}
-    {{/* Size-aware variants (same extension) */}}
-    {{ with index $w400Index $lname }}{{ $small = .RelPermalink }}{{ end }}
-    {{ with index $w800Index $lname }}{{ $medium = .RelPermalink }}{{ end }}
-    {{ $alt := cond (ne .Title "") .Title (replaceRE "\\.[^.]+$" "" $name) }}
-    {{ $dict := dict "src" $src "href" .RelPermalink "alt" $alt }}
-    {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
-    {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
-    {{/* Attach fallback format: same basename, different extension (plain, no width suffix). */}}
-    {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
-    {{ $group := index $plainByBase $base }}
-    {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $lname) }}
-    {{ $picked := false }}
-    {{ range $group }}
-      {{ $altName := $lname }}
-      {{ $altExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $altName) }}
-      {{ if and (ne $altExt $origExt) (not $picked) }}
-        {{ $mime := cond (or (eq $altExt "jpg") (eq $altExt "jpeg")) "image/jpeg" (printf "image/%s" $altExt) }}
-        {{ $dict = merge $dict (dict "altFormat" (dict "src" .RelPermalink "type" $mime)) }}
-        {{ $picked = true }}
-      {{ end }}
+{{ range $altImages }}
+    {{ $baseFileName := index . "baseFileName" }}
+    {{ $baseImage := index $baseImages $baseFileName }}
+    {{ if $baseImage }}
+      {{ $baseImages = $baseImages | merge (dict $baseFileName (merge $baseImage .)) }}
     {{ end }}
-    {{ $items = $items | append $dict }}
-  {{ end }}
 {{ end }}
 
-
-{{ return $items }}
+{{ return $baseImages }}
