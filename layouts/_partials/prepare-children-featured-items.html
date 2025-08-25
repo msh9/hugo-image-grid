@@ -5,15 +5,13 @@
   Input:
     - parent page/section as .
 
-  Output items (normalized for image-grid.html):
-    - src: image URL (original)
-    - small/medium: optional size variants when present
-    - href: link to the child page
-    - alt: child page Title (treating the image as a cover)
+  Output item shape (normalized):
+    - Dictionary of <pageName><base> -->
+      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
 */}}
 
 {{ $parent := . }}
-{{ $items := slice }}
+{{ $items := dict }}
 
 {{/* Collect immediate children: direct subsections + direct regular pages */}}
 {{ $children := slice }}
@@ -22,13 +20,8 @@
 
 {{ range $children }}
   {{ $child := . }}
-  {{ $feat := partial "prepare-feature-image.html" $child }}
-  {{ with index $feat 0 }}
-    {{ $featItem := . }}
-    {{ $href := $child.RelPermalink }}
-    {{ $alt := $child.Title }}
-    {{ $items = $items | append (merge $featItem (dict "href" $href "alt" $alt)) }}
-  {{ end }}
+  {{ $featuredImage := partial "prepare-feature-image.html" $child }}
+  {{ $items = merge $items $featuredImage }}
 {{ end }}
 
 {{ return $items }}

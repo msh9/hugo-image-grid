@@ -1,95 +1,59 @@
 {{/*
   prepare-feature-image: returns a normalized slice of dict items
-  for rendering by image-grid.html. From a single child page.
+  for rendering by image-grid.html. This partial handles capturing a single featured image from a bundle instead of all images
 
-  Conventions:
-    - Size variants: <base>-400w.<ext>, <base>-800w.<ext>
-    - Primary/original: <base>.<ext>
-    - Fallback format: same basename, different extension (plain, no width suffix)
+  Naming conventions handled here:
+    - Size variants (same extension):
+        <base>-400w.<ext>, <base>-800w.<ext>
+    - Primary/original (same extension):
+        <base>.<ext>
+    - Fallback format:
+        <base>-alt.<ext>
 
-  Output items:
-    - src: original image URL to display
-    - small: optional URL for 400w variant
-    - medium: optional URL for 800w variant
-    - href: link target (child page; caller may override)
-    - alt: alt text (title or filename)
-    - altFormat: dict { src, type } (optional; same-basename different extension)
+  Input:
+    - page/section/etc to get resources from as .
+
+  Output item shape (normalized):
+    - Dictionary of <pageName><base> -->
+      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
 */}}
 
-{{ $page := . }}
+{{ $featuredImage := dict }}
 
-{{ $items := slice }}
-
-{{ $imgs := $page.Resources.ByType "image" }}
-{{/* Indexes for width variants and plain images */}}
-{{ $w400Index := dict }}
-{{ $w800Index := dict }}
-{{ $plainByBase := dict }}
-
-{{ range $imgs }}
-  {{ $lname := lower .Name }}
-  {{ $m := findRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" $lname 1 }}
-  {{ if gt (len $m) 0 }}
-    {{ $base := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$1" $lname }}
-    {{ $w := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$2" $lname }}
-    {{ $ext := replaceRE "^(.+)-([0-9]{3,4})w\\.([^.]+)$" "$3" $lname }}
-    {{ $origKey := printf "%s.%s" $base $ext }}
-    {{ if eq $w "400" }}
-      {{ $w400Index = merge $w400Index (dict $origKey .) }}
-    {{ else if eq $w "800" }}
-      {{ $w800Index = merge $w800Index (dict $origKey .) }}
+{{ $sortedImageResources := sort (.Resources.ByType "image") ".Name" "asc" }}
+{{ range $sortedImageResources }}
+    {{ $fileName := path.Base .Key }}
+    {{ $isSpecial := findRE `^(.+)-(400w)?(800w)?(alt)?\.([^.]+)$` $fileName }}
+    {{ if not $isSpecial }}
+      {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" .)) }}
+      {{ break }} 
     {{ end }}
-  {{ else }}
-    {{ $base := lower (replaceRE "\\.[^.]+$" "" $lname) }}
-    {{ $existing := index $plainByBase $base }}
-    {{ if $existing }}
-      {{/* Ensure slice type even if existing was a single resource */}}
-      {{ $plainByBase = merge $plainByBase (dict $base (slice $existing .)) }}
-    {{ else }}
-      {{ $plainByBase = merge $plainByBase (dict $base (slice .)) }}
-    {{ end }}
-  {{ end }}
 {{ end }}
 
-{{/* Candidates for featured: non-width-suffixed images */}}
-{{ $candidates := slice }}
-{{ range $imgs }}
-  {{ $lname := lower .Name }}
-  {{ $isWidth := gt (len (findRE "^.+-[0-9]{3,4}w\\.[^.]+$" $lname 1)) 0 }}
-  {{ if not $isWidth }}
-    {{ $candidates = $candidates | append . }}
+{{ $outputImage := dict }}
+{{/* We use range here because we're dealing with a dict collection even though there should only be 1 element */}}
+{{ range $baseName, $resources := $featuredImage }}
+  {{ $smallGlob := printf "%s-400w.*" $baseName }}
+  {{ $mediumGlob := printf "%s-800w.*" $baseName }}
+  {{ $altGlob := printf "%s-alt.*" $baseName }}
+  {{ $small := $.Resources.GetMatch $smallGlob }}
+  {{ $medium := $.Resources.GetMatch $mediumGlob }}
+  {{ $alt := $.Resources.GetMatch $altGlob }}
+
+  {{ $finalResource := $resources }}
+  {{ with $small }}
+      {{ $finalResource = $finalResource | merge (dict "400w" .) }}
   {{ end }}
+
+  {{ with $medium }}
+      {{ $finalResource = $finalResource | merge (dict "800w" .) }}
+  {{ end }}
+
+  {{ with $alt }}
+      {{ $finalResource = $finalResource | merge (dict "alt" .) }}
+  {{ end }}
+
+  {{ $outputImage = $outputImage | merge (dict (printf "%s%s" $.Name $baseName) $finalResource) }}
 {{ end }}
 
-{{ $sorted := sort $candidates "Name" "asc" }}
-{{ with index $sorted 0 }}
-  {{ $featuredImage := . }}
-  {{ $name := $featuredImage.Name }}
-  {{ $key := lower $name }}
-  {{ $base := lower (replaceRE "\\.[^.]+$" "" $name) }}
-  {{ $src := $featuredImage.RelPermalink }}
-  {{ $small := "" }}
-  {{ with index $w400Index $key }}{{ $small = .RelPermalink }}{{ end }}
-  {{ $medium := "" }}
-  {{ with index $w800Index $key }}{{ $medium = .RelPermalink }}{{ end }}
-  {{ $alt := cond (ne $featuredImage.Title "") $featuredImage.Title $base }}
-  {{ $dict := dict "src" $src "href" $page.RelPermalink "alt" $alt }}
-  {{ if ne $small "" }}{{ $dict = merge $dict (dict "small" $small) }}{{ end }}
-  {{ if ne $medium "" }}{{ $dict = merge $dict (dict "medium" $medium) }}{{ end }}
-  {{/* Attach fallback format: plain same-basename different extension */}}
-  {{ $group := index $plainByBase $base }}
-  {{ $origExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $key) }}
-  {{ $picked := false }}
-  {{ range $group }}
-    {{ $altName := lower .Name }}
-    {{ $altExt := lower (replaceRE "^.+\\.([^.]+)$" "$1" $altName) }}
-    {{ if and (ne $altExt $origExt) (not $picked) }}
-      {{ $mime := cond (or (eq $altExt "jpg") (eq $altExt "jpeg")) "image/jpeg" (printf "image/%s" $altExt) }}
-      {{ $dict = merge $dict (dict "altFormat" (dict "src" .RelPermalink "type" $mime)) }}
-      {{ $picked = true }}
-    {{ end }}
-  {{ end }}
-  {{ $items = $items | append $dict }}
-{{ end }}
-
-{{ return $items }}
+{{ return $outputImage }}

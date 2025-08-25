@@ -1,7 +1,9 @@
 {{/*
-  Renders a responsive image grid from a normalized slice of dicts:
-    [{ src, href, alt }, ...]
-  No lookup or business logic here; callers must normalize.
+  Renders a responsive image grid from a dictionary based structure
+
+  Note well that the key values are discarded.
+  - Dictionary of <__> -->
+    - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
 */}}
 
 <ul class="grid" aria-label="Image grid">
