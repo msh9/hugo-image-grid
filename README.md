@@ -4,7 +4,7 @@ A minimal, no-JS theme that renders images placed in `content/` as a responsive 
 
 Key points:
 - No image processing or resizing (serves original files).
-- Single CSS file at `themes/image-grid/assets/css/theme.css`.
+- Single CSS file at `assets/css/theme.css`.
 - No JavaScript, no external fonts or build tools.
 
 ## Usage
@@ -19,7 +19,7 @@ Key points:
    - Leaf bundle: `content/my-album/index.md` with images in the same folder.
    - Section bundle: `content/exampleSection/_index.md` with images in the same folder.
 
-   Sections are treated as separate albums. On the home page, each top‑level section is shown in its own block, with its title linking to that section’s page. The section page itself displays the section’s images (and, by default, images from descendant pages).
+   Sections are treated as separate albums. On the home page, each top‑level section is shown in its own block, with its title linking to that section’s page. The section page displays the section’s own images and, depending on configuration, either a single featured image per immediate child gallery or full grids for each immediate child gallery. Deeper descendants are not included.
 
    You can set the section’s title/description in its `_index.md` front matter:
 
@@ -32,10 +32,10 @@ Key points:
 
 3. The theme will (defaults):
    - Home (`/`): shows a root gallery (images at the content root) and a block per top‑level section. By default, each block displays the current bundle’s images and one featured thumbnail per immediate child gallery (both subsections and leaf bundles). Section titles link to their pages.
-   - Single page: displays that page’s images in a grid above the content; thumbnails are not used.
+   - Single page: displays that page’s images in a grid below the content; thumbnails are not used.
    - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.display.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
 
-Alt text uses the resource title when available, or falls back to the filename (without extension). Images use `loading="lazy"` and `decoding="async"` for better performance.
+Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
 
 ### Image discovery and grid defaults
 
@@ -53,7 +53,6 @@ How it works:
   - Original: `<base>.<ext>`
   - 400px wide: `<base>-400w.<ext>`
   - 800px wide: `<base>-800w.<ext>`
-- All size variants must use the same file extension as the original (e.g., all `.avif` or all `.jpg`).
 - You can provide fewer than three, e.g. the original and just a `-400w` variant.
 
 Example:
@@ -72,32 +71,29 @@ photo4-800w.jpg
 
 ### Alternate fallback format
 
-Optionally provide a backup file format using the same basename with a different extension. The theme is optimally designed for modern formats like AVIF or WebP, but you can include a fallback (e.g., JPEG or PNG) for wider compatibility. Use the same basename; no special prefixes are required.
+Optionally provide a backup file format using an `-alt` suffix on the same basename. 
 
 Rules:
-- Fallback format: same basename, different extension, e.g. `photo.avif` ↔ `photo.jpg`.
-- When width variants are present, you may also provide fallbacks per width (e.g., `photo-400w.jpg`), but the theme does not use fallback formats for size-aware delivery (see limitation below).
+- Fallback format: `<base>-alt.<ext>`, e.g. `photo-alt.jpg` as a fallback for `photo.avif`.
+- Fallbacks are not used for size-aware delivery; only the primary format’s width variants (`-400w`, `-800w`) are considered for the `<source>` `srcset`.
+- Width-specific fallbacks (e.g., `photo-400w-alt.jpg`) are not read.
 
 Example:
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-picture1.jpg            # fallback format (same basename)
+picture1-alt.jpg        # fallback format (with -alt suffix)
 picture1-400w.avif
-picture1-400w.jpg       # optional, not used for size-aware fallback
+picture1-800w.avif
 photo2.webp
 photo3.avif
-photo3.png              # fallback format
+photo3-alt.png          # fallback format
 photo3-400w.avif
 photo3-800w.avif
 photo4.jpg
 photo4-800w.jpg
 ```
-
-####
-
-**Limitations** the fallback format is not used for size‑aware delivery. It is applied as the `<img>` fallback in the gallery tile/featured image. Clicking the tile opens the primary format file.
 
 ###  Gallery Featured Image(s)
 
@@ -150,7 +146,7 @@ content/
   photo2.jpg
 ```
 
-Those images are treated as the root gallery and are shown on the home page according to the `useFeaturedImages` setting.
+Those images are treated as the root gallery and are always shown on the home page. The `useFeaturedImages` setting only affects how immediate child galleries are represented (featured tiles vs full grids), not whether root images are shown.
 
 ## Guardrails
 
