@@ -5,8 +5,8 @@ html, body { height: 100%; font-size: 100%; }
 body {
   margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
-  color: #111;
-  background: #fff;
+  color: #657b83;
+  background: #fdf6e3;
 }
 
 .wrap { 
@@ -15,7 +15,7 @@ body {
 
 }
 
-.site-header { border-bottom: 1px solid #eee; padding: 2rem 0; }
+.site-header { border-bottom: 1px solid #586e75; padding: 2rem 0; }
 .site-title { font-size: 2rem; margin: 0; }
 .site-title a { color: inherit; text-decoration: none; }
 .site-subtitle { font-size: 1rem; }
@@ -39,61 +39,64 @@ body {
 .grid {
   padding: 0;
   margin: 0;
-  display: grid;
-  gap: 0.5rem;
-
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.25rem;
 }
  @media (width <= 1024px) {
-    .grid {
-      grid-template-columns: repeat(auto-fill, 280px);
+    .grid > * {
+      height: 640px;
     }
     .grid-item img {
-      width: 280px
+      height: 640px;
     }
  } 
 @media (width > 1024px) {
-    .grid {
-      grid-template-columns: repeat(auto-fill, 320px);
+    .grid > * {
+      height: 320px;
     }
     .grid-item img {
-      width: 320px;
+      height: 320px;
     }
 }
 
 .grid-item a {
-  display: block;
-  aspect-ratio: 1/1; /* square thumbnails */
-  overflow: hidden;
   border-radius: 2px;
-  background: #fff;
+  border-color: #586e75;
 }
 
 .grid-item img {
-  height: 100%;
-  object-fit: cover;
+  width: 100%;
+  object-fit: scale-down;
 }
 
-.site-footer { border-top: 1px solid #eee; padding: 2rem 0; }
+.site-footer { border-top: 1px solid #586e75; padding: 2rem 0; }
 .site-footer p { margin: 0; font-size: 0.9rem; }
 
 @media (prefers-color-scheme: dark) {
   body { 
-    color: #93a1a1; 
+    color: #839496; 
     background:#002b36; 
   }
   .site-header {
-    border-bottom-color:  #2aa198;
+    border-bottom-color:  #93a1a1;
   }
   .section-title {
-    border-bottom-color: #2aa198;
+    border-bottom-color: #93a1a1;
   }
   a {
     color: #93a1a1;
   }
   .grid-item a {
+    border-color: #eee8d5;
+  }
+  .grid-item a {
     background: #002b36;
   }
   .site-footer {
-    border-top-color: #2aa198;
+    border-top-color: #eee8d5;
   }
+
 }

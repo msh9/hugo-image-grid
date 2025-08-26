@@ -3,7 +3,7 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-    - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
+    - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
 */}}
 
 <div class="grid" aria-label="Image grid">
@@ -18,21 +18,23 @@
       {{ end }}
         <picture>
           {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
-          {{ with $small := index $resources "400w" }}
-            {{ with $medium := index $resources "800w" }}
-              <source type="{{ $small.MediaType.Type }}" size="(width <= 1024px) 280px, 320px" srcset="{{ $small.RelPermalink }} 400w, {{ $medium.RelPermalink }} 800w">
+          {{ with $small := index $resources "400" }}
+            {{ with $medium := index $resources "800" }}
+              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}">
+              <source type="{{ $small.MediaType.Type }}" media="(width > 1024px)" srcset="{{ $small.RelPermalink }}">
             {{ else }}
-              <source type="{{ $small.MediaType.Type }}" size="(width <= 1024px) 280px" srcset="{{ $small.RelPermalink }} 400w">
+              <source type="{{ $small.MediaType.Type }}" media="(width > 1024px)" srcset="{{ $small.RelPermalink }}">
             {{ end }}
           {{ else }}
             {{ with $medium := index $resources "800w" }}
-              <source type="{{ $medium.MediaType.Type }}" size="(width <= 1024px) 280px" srcset="{{ $medium.RelPermalink }} 800w">
+              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}">
             {{ end }}
           {{ end }}
+          <source type="{{ $original.MediaType.Type }}" srcset="{{ $original.RelPermalink }}">
           {{/* Alternate fallback format: single original, no size-aware srcset */}}
           {{ $imgSrc := $originalLink }}
           {{ with $alt := index $resources "alt" }}
-            {{ $imgSrc = $alt.RelPermaLink }}
+            {{ $imgSrc = $alt.RelPermalink }}
           {{ end }}
           <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $original.Name }}" />
         </picture>

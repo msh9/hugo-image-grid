@@ -5,7 +5,7 @@
 
   Naming conventions handled here:
     - Size variants (same extension):
-        <base>-400w.<ext>, <base>-800w.<ext>
+        <base>-400h.<ext>, <base>-800h.<ext>
     - Primary/original (same extension):
         <base>.<ext>
     - Fallback format:
@@ -16,7 +16,7 @@
 
   Output item shape (normalized):
     - Dictionary of <base> -->
-      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+      - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
       
 */}}
 
@@ -40,15 +40,15 @@
     400w, 800w, or alt. If the expression does not match at all we assume 
     this is an 'original' photo.
   */}}
-  {{ $suffixMatches := findRESubmatch `^(.+)-(400w)?(800w)?(alt)?\.([^.]+)$` $lowerImageName }}
+  {{ $suffixMatches := findRESubmatch `^(.+)-(400h)?(800h)?(alt)?\.([^.]+)$` $lowerImageName }}
   {{ if and $suffixMatches (index $suffixMatches 0) }}
     {{ $suffixMatch := index $suffixMatches 0 }}
     {{ if (index $suffixMatch 2) }} 
       {{/* 400w */}}
-      {{ $altImages = $altImages | append (dict "400w" . "baseFileName" (index $suffixMatch 1)) }}
+      {{ $altImages = $altImages | append (dict "400" . "baseFileName" (index $suffixMatch 1)) }}
     {{ else if (index $suffixMatch 3) }} 
       {{/* 800w */}}
-      {{ $altImages = $altImages | append (dict "800w" . "baseFileName" (index $suffixMatch 1)) }}
+      {{ $altImages = $altImages | append (dict "800" . "baseFileName" (index $suffixMatch 1)) }}
     {{ else if (index $suffixMatch 4) }} 
       {{/* alt */}}
       {{ $altImages = $altImages | append (dict "alt" . "baseFileName" (index $suffixMatch 1)) }}

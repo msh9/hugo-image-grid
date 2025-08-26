@@ -48,25 +48,25 @@ Alt text comes from the image resource name (`.Name` in Hugo). If no explicit na
 The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Supply optional width-suffixed variants alongside your original image.
 
 How it works:
-- Provide up to three files per image within the same bundle: the original, 400w, and 800w variants.
+- Provide up to three files per image within the same bundle: the original, 400h, and 800h variants.
 - Naming:
   - Original: `<base>.<ext>`
-  - 400px wide: `<base>-400w.<ext>`
-  - 800px wide: `<base>-800w.<ext>`
-- You can provide fewer than three, e.g. the original and just a `-400w` variant.
+  - 400px tall: `<base>-400h.<ext>`
+  - 800px tall: `<base>-800h.<ext>`
+- You can provide fewer than three, e.g. the original and just a `-400h` variant.
 
 Example:
 
 ```
 /exampleSite/content/myalbum/
 picture1.avif
-picture1-400w.avif
+picture1-400h.avif
 photo2.webp
 photo3.jpg
-photo3-400w.jpg
-photo3-800w.jpg
+photo3-400h.jpg
+photo3-800h.jpg
 photo4.jpg
-photo4-800w.jpg
+photo4-800h.jpg
 ```
 
 ### Alternate fallback format
@@ -75,8 +75,8 @@ Optionally provide a backup file format using an `-alt` suffix on the same basen
 
 Rules:
 - Fallback format: `<base>-alt.<ext>`, e.g. `photo-alt.jpg` as a fallback for `photo.avif`.
-- Fallbacks are not used for size-aware delivery; only the primary format’s width variants (`-400w`, `-800w`) are considered for the `<source>` `srcset`.
-- Width-specific fallbacks (e.g., `photo-400w-alt.jpg`) are not read.
+- Fallbacks are not used for size-aware delivery; only the primary format’s width variants (`-400h`, `-800h`) are considered for the `<source>` `srcset`.
+- Width-specific fallbacks (e.g., `photo-400h-alt.jpg`) are not read.
 
 Example:
 
@@ -84,15 +84,15 @@ Example:
 /exampleSite/content/myalbum/
 picture1.avif
 picture1-alt.jpg        # fallback format (with -alt suffix)
-picture1-400w.avif
-picture1-800w.avif
+picture1-400h.avif
+picture1-800h.avif
 photo2.webp
 photo3.avif
 photo3-alt.png          # fallback format
-photo3-400w.avif
-photo3-800w.avif
+photo3-400h.avif
+photo3-800h.avif
 photo4.jpg
-photo4-800w.jpg
+photo4-800h.jpg
 ```
 
 ###  Gallery Featured Image(s)

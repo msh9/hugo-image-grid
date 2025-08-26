@@ -4,7 +4,7 @@
 
   Naming conventions handled here:
     - Size variants (same extension):
-        <base>-400w.<ext>, <base>-800w.<ext>
+        <base>-400h.<ext>, <base>-800h.<ext>
     - Primary/original (same extension):
         <base>.<ext>
     - Fallback format:
@@ -15,7 +15,7 @@
 
   Output item shape (normalized):
     - Dictionary of <pageName><base> -->
-      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parentLink --> string
+      - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parentLink --> string
 */}}
 
 {{ $featuredImage := dict }}
@@ -23,7 +23,7 @@
 {{ $sortedImageResources := sort (.Resources.ByType "image") ".Name" "asc" }}
 {{ range $sortedImageResources }}
     {{ $fileName := path.Base .Key }}
-    {{ $isSpecial := findRE `^(.+)-(400w)?(800w)?(alt)?\.([^.]+)$` $fileName }}
+    {{ $isSpecial := findRE `^(.+)-(400h)?(800h)?(alt)?\.([^.]+)$` $fileName }}
     {{ if not $isSpecial }}
       {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" . "parentLink" $.Permalink)) }}
       {{ break }} 
@@ -42,11 +42,11 @@
 
   {{ $finalResource := $resources }}
   {{ with $small }}
-      {{ $finalResource = $finalResource | merge (dict "400w" .) }}
+      {{ $finalResource = $finalResource | merge (dict "400" .) }}
   {{ end }}
 
   {{ with $medium }}
-      {{ $finalResource = $finalResource | merge (dict "800w" .) }}
+      {{ $finalResource = $finalResource | merge (dict "800" .) }}
   {{ end }}
 
   {{ with $alt }}
