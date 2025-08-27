@@ -4,8 +4,8 @@ A minimal, no-JS theme that renders images placed in `content/` as a responsive 
 
 Key points:
 - No image processing or resizing (serves original files).
-- Single CSS file at `assets/css/theme.css`.
-- No JavaScript, no external fonts or build tools.
+- Image lightbox using [Lightbox2 by Lokesh Dhakar](https://github.com/lokesh/lightbox2)
+  - Currently using [lightbox v2.11.5](https://github.com/lokesh/lightbox2/releases/tag/v2.11.5)
 
 ## Usage
 
