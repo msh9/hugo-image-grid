@@ -7,7 +7,7 @@
 
 
 <div class="grid" aria-label="Image grid">
-  {{- range $i, $resources := $bundle -}}
+  {{- range $i, $resources := . -}}
     {{- with $original := index $resources "original" -}}
       <div class="grid-item">
         {{/* We make a concession to a bug in the prettier go template plugin here. It fails to recognize
