@@ -20,17 +20,17 @@
           {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
           {{ with $small := index $resources "400" }}
             {{ with $medium := index $resources "800" }}
-              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}">
+              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}" />
               <source type="{{ $small.MediaType.Type }}" media="(width > 1024px)" srcset="{{ $small.RelPermalink }}">
             {{ else }}
-              <source type="{{ $small.MediaType.Type }}" media="(width > 1024px)" srcset="{{ $small.RelPermalink }}">
+              <source type="{{ $small.MediaType.Type }}" media="(width > 1024px)" srcset="{{ $small.RelPermalink }}" />
             {{ end }}
           {{ else }}
             {{ with $medium := index $resources "800w" }}
-              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}">
+              <source type="{{ $medium.MediaType.Type }}" media="(width <= 1024px)" srcset="{{ $medium.RelPermalink }}" />
             {{ end }}
           {{ end }}
-          <source type="{{ $original.MediaType.Type }}" srcset="{{ $original.RelPermalink }}">
+          <source type="{{ $original.MediaType.Type }}" srcset="{{ $original.RelPermalink }}" />
           {{/* Alternate fallback format: single original, no size-aware srcset */}}
           {{ $imgSrc := $originalLink }}
           {{ with $alt := index $resources "alt" }}

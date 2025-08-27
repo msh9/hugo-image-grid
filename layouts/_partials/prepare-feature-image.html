@@ -1,33 +1,32 @@
-{{/*
-  prepare-feature-image: returns a normalized slice of dict items
+{{/* prepare-feature-image: returns a normalized slice of dict items
   for rendering by image-grid.html. This partial handles capturing a single featured image from a bundle instead of all images
 
   Naming conventions handled here:
-    - Size variants (same extension):
-        <base>-400h.<ext>, <base>-800h.<ext>
-    - Primary/original (same extension):
-        <base>.<ext>
-    - Fallback format:
-        <base>-alt.<ext>
+  - Size variants (same extension):
+  <base>-400h.<ext>, <base>-800h.<ext>
+  - Primary/original (same extension):
+  <base>.<ext>
+  - Fallback format:
+  <base>-alt.<ext>
 
   Input:
-    - page/section/etc to get resources from as .
+  - page/section/etc to get resources from as .
 
   Output item shape (normalized):
-    - Dictionary of <pageName><base> -->
-      - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parentLink --> string
+  - Dictionary of <pageName><base> -->
+  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parentLink --> string
 */}}
 
 {{ $featuredImage := dict }}
 
 {{ $sortedImageResources := sort (.Resources.ByType "image") ".Name" "asc" }}
 {{ range $sortedImageResources }}
-    {{ $fileName := path.Base .Key }}
-    {{ $isSpecial := findRE `^(.+)-(400h)?(800h)?(alt)?\.([^.]+)$` $fileName }}
-    {{ if not $isSpecial }}
-      {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" . "parentLink" $.Permalink)) }}
-      {{ break }} 
-    {{ end }}
+  {{ $fileName := path.Base .Key }}
+  {{ $isSpecial := findRE `^(.+)-(400h)?(800h)?(alt)?\.([^.]+)$` $fileName }}
+  {{ if not $isSpecial }}
+    {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" . "parentLink" $.Permalink)) }}
+    {{ break }}
+  {{ end }}
 {{ end }}
 
 {{ $outputImage := dict }}
@@ -42,15 +41,15 @@
 
   {{ $finalResource := $resources }}
   {{ with $small }}
-      {{ $finalResource = $finalResource | merge (dict "400" .) }}
+    {{ $finalResource = $finalResource | merge (dict "400" .) }}
   {{ end }}
 
   {{ with $medium }}
-      {{ $finalResource = $finalResource | merge (dict "800" .) }}
+    {{ $finalResource = $finalResource | merge (dict "800" .) }}
   {{ end }}
 
   {{ with $alt }}
-      {{ $finalResource = $finalResource | merge (dict "alt" .) }}
+    {{ $finalResource = $finalResource | merge (dict "alt" .) }}
   {{ end }}
 
   {{ $outputImage = $outputImage | merge (dict (printf "%s%s" $.Name $baseName) $finalResource) }}

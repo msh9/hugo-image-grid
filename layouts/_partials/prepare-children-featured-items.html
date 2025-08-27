@@ -1,13 +1,12 @@
-{{/*
-  prepare-children-featured-items: returns a normalized slice of dict items
+{{/* prepare-children-featured-items: returns a normalized slice of dict items
   representing the featured/cover image for each immediate child of a page.
 
   Input:
-    - parent page/section as .
+  - parent page/section as .
 
   Output item shape (normalized):
-    - Dictionary of <pageName><base> -->
-      - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+  - Dictionary of <pageName><base> -->
+  - Dictionary of "original" --> Resource, "400w"? --> Resource, "800w"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
 */}}
 
 {{ $parent := . }}
