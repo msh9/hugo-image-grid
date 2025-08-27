@@ -1,0 +1,14 @@
+# build output
+public
+
+# dependencies
+node_modules
+
+# git + tooling
+.git
+.hugo_build.lock
+
+# large binaries in example content
+exampleSite/content/
+assets/
+
