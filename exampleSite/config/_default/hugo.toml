@@ -1,0 +1,12 @@
+copyright = "© Your Name"
+defaultContentLanguage = "en"
+disableKinds = ["taxonomy"]
+enableRobotsTXT = true
+languageCode = "en"
+title = "Gird Image Gallery"
+themesDir = "../../"
+theme = "hugo-image-grid"
+
+[params]
+  description = "hugo-image-grid example"
+  title = "My Gallery"
