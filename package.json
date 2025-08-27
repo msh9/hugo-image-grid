@@ -5,8 +5,8 @@
   "description": "Formatting setup for Hugo theme templates and CSS via Prettier",
   "license": "MIT",
   "scripts": {
-    "format": "prettier --write \"assets/**/*.css\" \"layouts/*.html\"",
-    "format:check": "prettier --check \"assets/**/*.css\" \"layouts/*.html\""
+    "format": "prettier --write \"assets/**/*.css\" \"layouts/**/*.html\"",
+    "format:check": "prettier --check \"assets/**/*.css\" \"layouts/**/*.html\""
   },
   "devDependencies": {
     "prettier": "^3.6.2",
