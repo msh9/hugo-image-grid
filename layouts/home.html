@@ -23,11 +23,15 @@
   {{ else }}
     {{ $rootChildren := slice }}
     {{ range .Sections }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
-    {{ range .RegularPages }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
+    {{ range .RegularPages }}
+      {{ $rootChildren = $rootChildren | append . }}
+    {{ end }}
 
     {{ range $rootChildren }}
       <section class="gallery-section">
-        <h2 class="section-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <h2 class="section-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h2>
         {{ $items := partial "prepare-bundle-images.html" . }}
         {{ partial "image-grid.html" $items }}
       </section>

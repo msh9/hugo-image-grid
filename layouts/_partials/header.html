@@ -1,9 +1,10 @@
-
 <header class="site-header">
   {{ partial "header-before.html" . }}
   <div class="wrap">
-      <h1 class="site-title"><a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a></h1>
-      {{ with site.Params.subtitle }}<p class="site-subtitle">{{ . }}</p>{{ end }}
+    <h1 class="site-title">
+      <a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+    </h1>
+    {{ with site.Params.subtitle }}<p class="site-subtitle">{{ . }}</p>{{ end }}
   </div>
   {{ partial "header-after.html" . }}
 </header>

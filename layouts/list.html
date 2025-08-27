@@ -3,6 +3,7 @@
   {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
   {{ $useFeatured := partialCached "use-featured-images.html" . }}
 
+
   <section>
     {{ $items := partial "prepare-bundle-images.html" . }}
     {{ partial "image-grid.html" $items }}
@@ -23,12 +24,13 @@
 
     {{ range $children }}
       <section class="gallery-section">
-        <h2 class="section-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <h2 class="section-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h2>
         {{ $items := partial "prepare-bundle-images.html" . }}
         {{ partial "image-grid.html" $items }}
       </section>
     {{ end }}
   {{ end }}
-
 
 {{ end }}
