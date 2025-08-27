@@ -1,8 +1,8 @@
-name: Prettier
+name: Formatting
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -26,7 +26,7 @@ jobs:
             npm install
           fi
 
-      - name: Prettier check
+      - name: Template prettier check
         run: npm run format:check
 
       - name: Stylelint CSS
