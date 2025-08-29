@@ -34,6 +34,7 @@ Key points:
    - Home (`/`): shows a root gallery (images at the content root) and a block per top‑level section. By default, each block displays the current bundle’s images and one featured thumbnail per immediate child gallery (both subsections and leaf bundles). Section titles link to their pages.
    - Single page: displays that page’s images in a grid below the content; thumbnails are not used.
    - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.display.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
+   - Each set of images from a gallery will be enabled to be displayed in a lightbox. When `useFeaturedImages` is false, images displayed from child galleries will be displayed in a lightbox when clicked on. When `useFeaturedImages` is true, images from child galleries will be links to the child gallery.
 
 Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
 
@@ -41,7 +42,6 @@ Alt text comes from the image resource name (`.Name` in Hugo). If no explicit na
 
 - Images are discovered only via page resources
 - No image processing or transforms are performed.
-- Default grid uses CSS Grid; no JS and no external frameworks. 
 
 ### Size aware images
 
@@ -148,12 +148,7 @@ content/
 
 Those images are treated as the root gallery and are always shown on the home page. The `useFeaturedImages` setting only affects how immediate child galleries are represented (featured tiles vs full grids), not whether root images are shown.
 
-## Guardrails
+## Limitations
 
-- No `.Resize`, `.Fit`, `.Filter`, or any other image processing is used.
-- No `<script>` tags.
-- No external webfonts or CSS frameworks.
-
-## Attribution
-
-Authored for this site; not copied from other themes.
+- Currently no exif information is displayed within the gallery or lightbox
+- The lightbox implementation does not support fallback image formats
