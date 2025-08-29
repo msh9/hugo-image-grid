@@ -2,11 +2,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ if .Title }}{{ .Title }} ·{{ end }}{{ site.Title }}</title>
-  <link rel="stylesheet" href="{{ (resources.Get "css/theme.css").Permalink }}" />
-  <link rel="stylesheet" href="{{ (resources.Get "css/lightbox.min.css").Permalink }}" />
+  <link
+    rel="stylesheet"
+    href="{{ (resources.Get "css/theme.css").Permalink }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ (resources.Get "css/lightbox.min.css").Permalink }}"
+  />
   {{- with site.Params.description -}}
     <meta name="description" content="{{ . }}" />
   {{- end -}}
-  <script defer src="{{ (resources.Get "js/lightbox-plus-jquery.min.js").Permalink }}"></script>
+  <script
+    defer
+    src="{{ (resources.Get "js/lightbox-plus-jquery.min.js").Permalink }}"
+  ></script>
   {{ partial "head-custom.html" . }}
 </head>
