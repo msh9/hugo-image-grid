@@ -2,24 +2,25 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
+  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parent" --> Page/Section/etc, "featuredImage"? --> bool
 */}}
 
 
 <div class="grid" aria-label="Image grid">
   {{- range $i, $resources := . -}}
     {{- with $original := index $resources "original" -}}
+      {{- with $parent := index $resources "parent" -}}
       <div class="grid-item">
         {{/* We make a concession to a bug in the prettier go template plugin here. It fails to recognize
           that an anchor element is *always* opened within a with-else-end block. This causes
           the formatter to fail in a way that ignores ignore statements.
         */}}
-        {{ $originalLink := $original.RelPermalink }}
-        {{ $anchorTarget := $original.RelPermalink }}
-        {{ with $parentLink := index $resources "parentLink" }}
-          {{ $anchorTarget = $parentLink }}
-        {{ end }}
-        <a href="{{ $anchorTarget }}">
+        {{- $originalLink := $original.RelPermalink -}}
+        {{- $anchorTarget := $original.RelPermalink -}}
+        {{- if index $resources "featuredImage" -}}
+          {{- $anchorTarget = $parent.Permalink -}}
+        {{- end -}}
+        <a href="{{ $anchorTarget }}" {{- if eq $anchorTarget $originalLink -}}data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"{{- end -}} >
           <picture>
             {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
             {{ with $small := index $resources "400" }}
@@ -67,6 +68,7 @@
           </picture>
         </a>
       </div>
-    {{ end }}
-  {{ end }}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
 </div>
