@@ -1,4 +1,6 @@
 name: Formatting
+permissions:
+  contents: read
 
 on:
   push:
