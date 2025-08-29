@@ -15,7 +15,7 @@
 
   Output item shape (normalized):
   - Dictionary of <base> -->
-  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>
+  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parent" --> Page/Section/etc, "featuredImage" --> bool
 */}}
 
 {{/* We organize the bundle images in two passes.
@@ -49,7 +49,7 @@
     {{ end }}
     {{/* unknown / no match */}}
   {{ else }}
-    {{ $forDisplay := dict (.Key | path.BaseName) (dict "original" .) }}
+    {{ $forDisplay := dict (.Key | path.BaseName) (dict "original" . "parent" $ "featuredImage" false) }}
     {{ $baseImages = $baseImages | merge $forDisplay }}
   {{ end }}
 {{ end }}

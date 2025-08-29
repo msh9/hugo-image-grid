@@ -2,71 +2,78 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parentLink"? --> string
+  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parent" --> Page/Section/etc, "featuredImage"? --> bool
 */}}
 
 
 <div class="grid" aria-label="Image grid">
-  {{- range $i, $resources := $bundle -}}
+  {{- range $i, $resources := . -}}
     {{- with $original := index $resources "original" -}}
-      <div class="grid-item">
-        {{/* We make a concession to a bug in the prettier go template plugin here. It fails to recognize
-          that an anchor element is *always* opened within a with-else-end block. This causes
-          the formatter to fail in a way that ignores ignore statements.
-        */}}
-        {{ $originalLink := $original.RelPermalink }}
-        {{ $anchorTarget := $original.RelPermalink }}
-        {{ with $parentLink := index $resources "parentLink" }}
-          {{ $anchorTarget = $parentLink }}
-        {{ end }}
-        <a href="{{ $anchorTarget }}">
-          <picture>
-            {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
-            {{ with $small := index $resources "400" }}
-              {{ with $medium := index $resources "800" }}
-                <source
-                  type="{{ $medium.MediaType.Type }}"
-                  media="(width <= 1024px)"
-                  srcset="{{ $medium.RelPermalink }}"
-                />
-                <source
-                  type="{{ $small.MediaType.Type }}"
-                  media="(width > 1024px)"
-                  srcset="{{ $small.RelPermalink }}"
-                />
+      {{- with $parent := index $resources "parent" -}}
+        <div class="grid-item">
+          {{/* We make a concession to a bug in the prettier go template plugin here. It fails to recognize
+            that an anchor element is *always* opened within a with-else-end block. This causes
+            the formatter to fail in a way that ignores ignore statements.
+          */}}
+          {{- $originalLink := $original.RelPermalink -}}
+          {{- $anchorTarget := $original.RelPermalink -}}
+          {{- if index $resources "featuredImage" -}}
+            {{- $anchorTarget = $parent.Permalink -}}
+          {{- end -}}
+          <a
+            href="{{ $anchorTarget }}"
+            {{- if eq $anchorTarget $originalLink -}}
+              data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"
+            {{- end -}}
+          >
+            <picture>
+              {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
+              {{ with $small := index $resources "400" }}
+                {{ with $medium := index $resources "800" }}
+                  <source
+                    type="{{ $medium.MediaType.Type }}"
+                    media="(width <= 1024px)"
+                    srcset="{{ $medium.RelPermalink }}"
+                  />
+                  <source
+                    type="{{ $small.MediaType.Type }}"
+                    media="(width > 1024px)"
+                    srcset="{{ $small.RelPermalink }}"
+                  />
+                {{ else }}
+                  <source
+                    type="{{ $small.MediaType.Type }}"
+                    media="(width > 1024px)"
+                    srcset="{{ $small.RelPermalink }}"
+                  />
+                {{ end }}
               {{ else }}
-                <source
-                  type="{{ $small.MediaType.Type }}"
-                  media="(width > 1024px)"
-                  srcset="{{ $small.RelPermalink }}"
-                />
+                {{ with $medium := index $resources "800w" }}
+                  <source
+                    type="{{ $medium.MediaType.Type }}"
+                    media="(width <= 1024px)"
+                    srcset="{{ $medium.RelPermalink }}"
+                  />
+                {{ end }}
               {{ end }}
-            {{ else }}
-              {{ with $medium := index $resources "800w" }}
-                <source
-                  type="{{ $medium.MediaType.Type }}"
-                  media="(width <= 1024px)"
-                  srcset="{{ $medium.RelPermalink }}"
-                />
+              <source
+                type="{{ $original.MediaType.Type }}"
+                srcset="{{ $original.RelPermalink }}"
+              />
+              {{/* Alternate fallback format: single original, no size-aware srcset */}}
+              {{ $imgSrc := $originalLink }}
+              {{ with $alt := index $resources "alt" }}
+                {{ $imgSrc = $alt.RelPermalink }}
               {{ end }}
-            {{ end }}
-            <source
-              type="{{ $original.MediaType.Type }}"
-              srcset="{{ $original.RelPermalink }}"
-            />
-            {{/* Alternate fallback format: single original, no size-aware srcset */}}
-            {{ $imgSrc := $originalLink }}
-            {{ with $alt := index $resources "alt" }}
-              {{ $imgSrc = $alt.RelPermalink }}
-            {{ end }}
-            <img
-              loading="lazy"
-              src="{{ $imgSrc }}"
-              alt="{{ $original.Name }}"
-            />
-          </picture>
-        </a>
-      </div>
-    {{ end }}
-  {{ end }}
+              <img
+                loading="lazy"
+                src="{{ $imgSrc }}"
+                alt="{{ $original.Name }}"
+              />
+            </picture>
+          </a>
+        </div>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
 </div>
