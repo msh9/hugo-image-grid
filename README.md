@@ -1,6 +1,6 @@
 # hugo-image-grid (Hugo theme)
 
-A minimal, no-JS theme that renders images placed in `content/` as a responsive grid.
+Renders images into a center aligned grid with a modal lightbox.
 
 Key points:
 - No image processing or resizing (serves original files).
