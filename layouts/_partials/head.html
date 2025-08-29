@@ -4,7 +4,7 @@
   <title>{{ if .Title }}{{ .Title }} ·{{ end }}{{ site.Title }}</title>
   <link
     rel="stylesheet"
-    href="{{ (resources.Get "css/theme.css").Permalink }}"
+    href="{{ (resources.Get "css/theme.css" | resources.Minify).Permalink }}"
   />
   <link
     rel="stylesheet"
