@@ -1,8 +1,11 @@
-{{ define "main" }}
-  {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
+{{- define "main" -}}
+  {{- with .Title -}}<h1 class="page-title">{{- . -}}</h1>{{- end -}}
 
-  {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
+  {{- with .Content -}}<div class="content">{{- . -}}</div>{{- end -}}
 
-  {{ $items := partial "prepare-bundle-images.html" . }}
-  {{ partial "image-grid.html" $items }}
-{{ end }}
+
+  <section class="gallery-section">
+    {{- $items := partial "prepare-bundle-images.html" . -}}
+    {{- partial "image-grid.html" $items -}}
+  </section>
+{{- end -}}

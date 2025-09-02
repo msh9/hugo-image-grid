@@ -1,40 +1,43 @@
-{{ define "main" }}
-  {{ with .Content }}
-    <div class="content">{{ . }}</div>
-  {{ end }}
+{{- define "main" -}}
+  {{- with .Content -}}
+    <div class="content">{{- . -}}</div>
+  {{- end -}}
 
-  {{ $useFeatured := partialCached "use-featured-images.html" . }}
+  {{- $useFeatured := partialCached "use-featured-images.html" . -}}
 
   {{/* Home root images */}}
-  {{ $rootItems := partial "prepare-bundle-images.html" . }}
-  <section class="gallery-section">
-    <h2 class="section-title">Non-Gallery Photos</h2>
-    {{ partial "image-grid.html" $rootItems }}
-  </section>
-
+  {{- if .Resources.ByType "image" -}}
+    {{- $rootItems := partial "prepare-bundle-images.html" . -}}
+    <section class="gallery-section">
+      <h2 class="section-title">Home Photos</h2>
+      {{- partial "image-grid.html" $rootItems -}}
+    </section>
+  {{- end -}}
   {{/* Immediate child galleries: direct subsections + direct regular pages */}}
-  {{ if $useFeatured }}
+  {{- if $useFeatured -}}
     {{/* When using featured images, show child galleries as a single grid */}}
-    {{ $galleryItems := partial "prepare-children-featured-items.html" . }}
+    {{- $galleryItems := partial "prepare-children-featured-items.html" . -}}
     <section class="gallery-section">
       <h2 class="section-title">Galleries</h2>
-      {{ partial "image-grid.html" $galleryItems }}
+      {{- partial "image-grid.html" $galleryItems -}}
     </section>
-  {{ else }}
-    {{ $rootChildren := slice }}
-    {{ range .Sections }}{{ $rootChildren = $rootChildren | append . }}{{ end }}
-    {{ range .RegularPages }}
-      {{ $rootChildren = $rootChildren | append . }}
+  {{- else -}}
+    {{- $rootChildren := slice -}}
+    {{- range .Sections -}}
+      {{- $rootChildren = $rootChildren | append . }}
     {{ end }}
+    {{- range .RegularPages -}}
+      {{- $rootChildren = $rootChildren | append . -}}
+    {{- end -}}
 
-    {{ range $rootChildren }}
+    {{- range $rootChildren -}}
       <section class="gallery-section">
         <h2 class="section-title">
-          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <a href="{{- .RelPermalink -}}">{{- .Title -}}</a>
         </h2>
-        {{ $items := partial "prepare-bundle-images.html" . }}
-        {{ partial "image-grid.html" $items }}
+        {{- $items := partial "prepare-bundle-images.html" . -}}
+        {{- partial "image-grid.html" $items -}}
       </section>
-    {{ end }}
-  {{ end }}
-{{ end }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

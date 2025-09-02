@@ -1,36 +1,36 @@
-{{ define "main" }}
-  {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
-  {{ with .Content }}<div class="content">{{ . }}</div>{{ end }}
-  {{ $useFeatured := partialCached "use-featured-images.html" . }}
+{{- define "main" -}}
+  {{- with .Title -}}<h1 class="page-title">{{- . -}}</h1>{{- end -}}
+  {{- with .Content -}}<div class="content">{{- . -}}</div>{{- end -}}
+  {{- $useFeatured := partialCached "use-featured-images.html" . -}}
 
 
-  <section>
-    {{ $items := partial "prepare-bundle-images.html" . }}
-    {{ partial "image-grid.html" $items }}
+  <section class="gallery-section">
+    {{- $items := partial "prepare-bundle-images.html" . -}}
+    {{- partial "image-grid.html" $items -}}
   </section>
 
-  {{/* Immediate child galleries: direct subsections + direct regular pages */}}
-  {{ if $useFeatured }}
-    {{/* When using featured images, show child galleries as a single grid */}}
-    {{ $galleryItems := partial "prepare-children-featured-items.html" . }}
+  {{- if $useFeatured -}}
+    {{- $galleryItems := partial "prepare-children-featured-items.html" . -}}
     <section class="gallery-section">
       <h2 class="section-title">Galleries</h2>
-      {{ partial "image-grid.html" $galleryItems }}
+      {{- partial "image-grid.html" $galleryItems -}}
     </section>
-  {{ else }}
-    {{ $children := slice }}
-    {{ range .Sections }}{{ $children = $children | append . }}{{ end }}
-    {{ range .RegularPages }}{{ $children = $children | append . }}{{ end }}
+  {{- else -}}
+    {{- $children := slice -}}
+    {{- range .Sections -}}{{ $children = $children | append . -}}{{- end -}}
+    {{- range .RegularPages -}}
+      {{ $children = $children | append . -}}
+    {{- end -}}
 
-    {{ range $children }}
+    {{- range $children -}}
       <section class="gallery-section">
         <h2 class="section-title">
-          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <a href="{{- .RelPermalink -}}">{{- .Title -}}</a>
         </h2>
-        {{ $items := partial "prepare-bundle-images.html" . }}
-        {{ partial "image-grid.html" $items }}
+        {{- $items := partial "prepare-bundle-images.html" . -}}
+        {{- partial "image-grid.html" $items -}}
       </section>
-    {{ end }}
-  {{ end }}
+    {{- end -}}
+  {{- end -}}
 
-{{ end }}
+{{- end -}}
