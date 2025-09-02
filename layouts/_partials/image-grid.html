@@ -28,47 +28,47 @@
           >
             <picture>
               {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
-              {{ with $small := index $resources "400" }}
-                {{ with $medium := index $resources "800" }}
+              {{- with $small := index $resources "400" -}}
+                {{- with $medium := index $resources "800" -}}
                   <source
-                    type="{{ $medium.MediaType.Type }}"
+                    type="{{- $medium.MediaType.Type -}}"
                     media="(width <= 1024px)"
-                    srcset="{{ $medium.RelPermalink }}"
+                    srcset="{{- $medium.RelPermalink -}}"
                   />
                   <source
-                    type="{{ $small.MediaType.Type }}"
+                    type="{{- $small.MediaType.Type -}}"
                     media="(width > 1024px)"
-                    srcset="{{ $small.RelPermalink }}"
+                    srcset="{{- $small.RelPermalink -}}"
                   />
-                {{ else }}
+                {{- else -}}
                   <source
-                    type="{{ $small.MediaType.Type }}"
+                    type="{{- $small.MediaType.Type -}}"
                     media="(width > 1024px)"
-                    srcset="{{ $small.RelPermalink }}"
+                    srcset="{{- $small.RelPermalink -}}"
                   />
-                {{ end }}
-              {{ else }}
-                {{ with $medium := index $resources "800w" }}
+                {{- end -}}
+              {{- else -}}
+                {{- with $medium := index $resources "800w" -}}
                   <source
-                    type="{{ $medium.MediaType.Type }}"
+                    type="{{- $medium.MediaType.Type -}}"
                     media="(width <= 1024px)"
-                    srcset="{{ $medium.RelPermalink }}"
+                    srcset="{{- $medium.RelPermalink -}}"
                   />
-                {{ end }}
-              {{ end }}
+                {{- end -}}
+              {{- end -}}
               <source
-                type="{{ $original.MediaType.Type }}"
-                srcset="{{ $original.RelPermalink }}"
+                type="{{- $original.MediaType.Type -}}"
+                srcset="{{- $original.RelPermalink -}}"
               />
               {{/* Alternate fallback format: single original, no size-aware srcset */}}
-              {{ $imgSrc := $originalLink }}
-              {{ with $alt := index $resources "alt" }}
-                {{ $imgSrc = $alt.RelPermalink }}
-              {{ end }}
+              {{- $imgSrc := $originalLink -}}
+              {{- with $alt := index $resources "alt" -}}
+                {{- $imgSrc = $alt.RelPermalink -}}
+              {{- end -}}
               <img
                 loading="lazy"
-                src="{{ $imgSrc }}"
-                alt="{{ $original.Name }}"
+                src="{{- $imgSrc -}}"
+                alt="{{- $original.Name -}}"
               />
             </picture>
           </a>
