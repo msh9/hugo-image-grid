@@ -3,6 +3,7 @@
 
   {{- with .Content -}}<div class="content">{{- . -}}</div>{{- end -}}
 
+
   <section class="gallery-section">
     {{- $items := partial "prepare-bundle-images.html" . -}}
     {{- partial "image-grid.html" $items -}}
