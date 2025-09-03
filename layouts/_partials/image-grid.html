@@ -11,7 +11,7 @@
     {{- with $original := index $resources "original" -}}
       {{- with $parent := index $resources "parent" -}}
         {{- $featured := index $resources "featuredImage" -}}
-        <div class="grid-item{{ if $featured }} grid-item-card{{ end }}">
+        <div class="grid-item {{ if $featured }}grid-item-card{{ end }}">
           {{- $originalLink := $original.RelPermalink -}}
           {{- $href := cond $featured $parent.Permalink $originalLink -}}
           <a
