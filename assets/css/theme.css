@@ -13,8 +13,8 @@ body {
   --hig-card-min-width: 260px;
   --hig-card-min-height: 180px;
   --hig-card-title-height: 56px;
-  --hig-card-overlay-bg: rgba(0, 0, 0, 0.55);
-  --hig-card-title-color: #ffffff;
+  --hig-card-overlay-bg: rgb(0 0 0 / 55%);
+  --hig-card-title-color: #fff;
 }
 
 .wrap { 
@@ -77,7 +77,7 @@ body {
 }
 
 /* Featured gallery card styles */
-.grid-item--card a.card {
+.grid-item-card a.card {
   display: block;
   position: relative;
   overflow: hidden;
@@ -85,7 +85,7 @@ body {
   min-height: var(--hig-card-min-height);
 }
 
-.grid-item--card .card-overlay {
+.grid-item-card .card-overlay {
   position: absolute;
   left: 0;
   right: 0;
@@ -97,7 +97,7 @@ body {
   padding: 0 0.5rem;
 }
 
-.grid-item--card .card-title {
+.grid-item-card .card-title {
   margin: 0;
   font-size: 1.15rem;
   color: var(--hig-card-title-color);
@@ -129,7 +129,7 @@ body {
     background: #073642;
   }
   :root {
-    --hig-card-overlay-bg: rgba(0, 0, 0, 0.4);
+    --hig-card-overlay-bg: rgb(0 0 0 / 40%);
     --hig-card-title-color: #eee8d5;
   }
   .site-footer {

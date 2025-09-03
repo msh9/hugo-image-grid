@@ -11,10 +11,18 @@
     {{- with $original := index $resources "original" -}}
       {{- with $parent := index $resources "parent" -}}
         {{- $featured := index $resources "featuredImage" -}}
-        <div class="grid-item{{ if $featured }} grid-item--card{{ end }}">
+        <div class="grid-item{{ if $featured }} grid-item-card{{ end }}">
           {{- $originalLink := $original.RelPermalink -}}
           {{- $href := cond $featured $parent.Permalink $originalLink -}}
-          <a href="{{ $href }}" {{ if $featured }}class="card" aria-label="{{ printf "Open gallery: %s" $parent.Title }}"{{ else }}data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"{{ end }}>
+          <a
+            href="{{ $href }}"
+            {{ if $featured }}
+              class="card"
+              aria-label="{{ printf "Open gallery: %s" $parent.Title }}"
+            {{ else }}
+              data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"
+            {{ end }}
+          >
             <picture>
               {{- with $small := index $resources "400" -}}
                 {{- with $medium := index $resources "800" -}}
