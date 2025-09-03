@@ -10,24 +10,20 @@
   {{- range $i, $resources := . -}}
     {{- with $original := index $resources "original" -}}
       {{- with $parent := index $resources "parent" -}}
-        <div class="grid-item">
-          {{/* We make a concession to a bug in the prettier go template plugin here. It fails to recognize
-            that an anchor element is *always* opened within a with-else-end block. This causes
-            the formatter to fail in a way that ignores ignore statements.
-          */}}
+        {{- $featured := index $resources "featuredImage" -}}
+        <div class="grid-item {{ if $featured }}grid-item-card{{ end }}">
           {{- $originalLink := $original.RelPermalink -}}
-          {{- $anchorTarget := $original.RelPermalink -}}
-          {{- if index $resources "featuredImage" -}}
-            {{- $anchorTarget = $parent.Permalink -}}
-          {{- end -}}
+          {{- $href := cond $featured $parent.Permalink $originalLink -}}
           <a
-            href="{{ $anchorTarget }}"
-            {{- if eq $anchorTarget $originalLink -}}
+            href="{{ $href }}"
+            {{ if $featured }}
+              class="card"
+              aria-label="{{ printf "Open gallery: %s" $parent.Title }}"
+            {{ else }}
               data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"
-            {{- end -}}
+            {{ end }}
           >
             <picture>
-              {{/* the following safely dereferences the pointers to multiple resources objects in the given bundle */}}
               {{- with $small := index $resources "400" -}}
                 {{- with $medium := index $resources "800" -}}
                   <source
@@ -60,7 +56,6 @@
                 type="{{- $original.MediaType.Type -}}"
                 srcset="{{- $original.RelPermalink -}}"
               />
-              {{/* Alternate fallback format: single original, no size-aware srcset */}}
               {{- $imgSrc := $originalLink -}}
               {{- with $alt := index $resources "alt" -}}
                 {{- $imgSrc = $alt.RelPermalink -}}
@@ -71,6 +66,11 @@
                 alt="{{- $original.Name -}}"
               />
             </picture>
+            {{- if $featured -}}
+              <div class="card-overlay" aria-hidden="true">
+                <h3 class="card-title">{{- $parent.Title -}}</h3>
+              </div>
+            {{- end -}}
           </a>
         </div>
       {{- end -}}

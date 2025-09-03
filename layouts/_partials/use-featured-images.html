@@ -1,9 +1,11 @@
 {{/* Returns the effective useFeaturedImages value
   Front matter overrides the site-level setting defined in params.
 */}}
-{{- $useFeaturedImages := site.Params.modules.hugoImageGrid.display.useFeaturedImages -}}
-{{- with .Params.modules.hugoImageGrid.display.useFeaturedImages -}}
-  {{- $useFeaturedImages = . -}}
-{{- end -}}
+{{ $useFeaturedImages := site.Params.modules.hugoimagegrid.usefeaturedimages }}
+{{ warnf "%+v" $useFeaturedImages }}
+{{ warnf "%+v" .Params }}
+{{ if and (isset .Params "modules") (isset .Params.modules "hugoimagegrid") (isset .Params.modules.hugoimagegrid "usefeaturedimages") }}
+  {{ $useFeaturedImages = index .Params "modules" "hugoimagegrid" "usefeaturedimages" }}
+{{ end }}
 
 {{ return $useFeaturedImages }}

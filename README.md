@@ -33,17 +33,12 @@ Key points:
 3. The theme will (defaults):
    - Home (`/`): shows a root gallery (images at the content root) and a block per top‑level section. By default, each block displays the current bundle’s images and one featured thumbnail per immediate child gallery (both subsections and leaf bundles). Section titles link to their pages.
    - Single page: displays that page’s images in a grid below the content; thumbnails are not used.
-   - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.display.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
+   - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
    - Each set of images from a gallery will be enabled to be displayed in a lightbox. When `useFeaturedImages` is false, images displayed from child galleries will be displayed in a lightbox when clicked on. When `useFeaturedImages` is true, images from child galleries will be links to the child gallery.
 
 Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
 
-### Image discovery and grid defaults
-
-- Images are discovered only via page resources
-- No image processing or transforms are performed.
-
-### Size aware images
+## Size aware images
 
 The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Supply optional width-suffixed variants alongside your original image.
 
@@ -69,7 +64,7 @@ photo4.jpg
 photo4-800h.jpg
 ```
 
-### Alternate fallback format
+## Alternate fallback format
 
 Optionally provide a backup file format using an `-alt` suffix on the same basename. 
 
@@ -95,7 +90,7 @@ photo4.jpg
 photo4-800h.jpg
 ```
 
-###  Gallery Featured Image(s)
+##  Gallery Featured Image(s)
 
 hugo-image-grid treats page and section bundles as galleries within the directory structure. For example,
 
@@ -117,8 +112,7 @@ This choice can be set site wide via the site configuration file or on a per sec
 [params]
   [params.modules]
     [params.modules.hugoImageGrid]
-      [params.modules.hugoImageGrid.display]
-        useFeaturedImages = true
+      useFeaturedImages = true
 ```
 
 To configure per-bundle in front matter (YAML), use:
@@ -128,14 +122,27 @@ To configure per-bundle in front matter (YAML), use:
 params:
   modules:
     hugoImageGrid:
-      display:
-        useFeaturedImages: true
+      useFeaturedImages: true
 ---
 ```
 
 The front matter configuration overrides the site configuration for that bundle only. If not configured in either location, the theme defaults to using featured thumbnail images (i.e., `useFeaturedImages: true`).
 
-#### Home page root images
+#### Featured image gallery cards
+
+When `useFeaturedImages` is enabled, each immediate child gallery is represented by a featured image shown as a “card” in the grid. The card displays the child gallery’s title in an overlay, and both the title and the entire card link to the child gallery. Non‑featured images continue to open in a lightbox.
+
+You can customize card sizing and readability via CSS variables (set in your site CSS if you want to override the defaults):
+
+- `--hig-card-min-width`: minimum card width (default `260px`)
+- `--hig-card-min-height`: minimum card height (default `180px`)
+- `--hig-card-title-height`: overlay title bar height (default `56px`)
+- `--hig-card-overlay-bg`: overlay background color (supports alpha)
+- `--hig-card-title-color`: overlay title text color
+
+These card styles apply only to featured thumbnails for immediate child galleries. Root images and regular in‑bundle images keep their existing behavior and lightbox interactions.
+
+### Home page root images
 
 To display images that live at the content root on the home page, create a branch bundle at `content/_index.md`. Place your root images alongside that file, for example:
 

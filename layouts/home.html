@@ -3,7 +3,7 @@
     <div class="content">{{- . -}}</div>
   {{- end -}}
 
-  {{- $useFeatured := partialCached "use-featured-images.html" . -}}
+  {{- $useFeatured := partial "use-featured-images.html" . -}}
 
   {{/* Home root images */}}
   {{- if .Resources.ByType "image" -}}

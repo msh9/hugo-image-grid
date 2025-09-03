@@ -1,2 +1,2 @@
-[params.modules.hugoImageGrid.display]
+[params.modules.hugoImageGrid]
   useFeaturedImages = true
