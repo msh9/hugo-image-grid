@@ -13,107 +13,57 @@
         {{- $featured := index $resources "featuredImage" -}}
         <div class="grid-item{{ if $featured }} grid-item--card{{ end }}">
           {{- $originalLink := $original.RelPermalink -}}
-          {{- if $featured -}}
-            {{- $anchorTarget := $parent.Permalink -}}
-            <a class="card" href="{{ $anchorTarget }}" aria-label="{{ printf "Open gallery: %s" $parent.Title }}">
-              <picture>
-                {{- with $small := index $resources "400" -}}
-                  {{- with $medium := index $resources "800" -}}
-                    <source
-                      type="{{- $medium.MediaType.Type -}}"
-                      media="(width <= 1024px)"
-                      srcset="{{- $medium.RelPermalink -}}"
-                    />
-                    <source
-                      type="{{- $small.MediaType.Type -}}"
-                      media="(width > 1024px)"
-                      srcset="{{- $small.RelPermalink -}}"
-                    />
-                  {{- else -}}
-                    <source
-                      type="{{- $small.MediaType.Type -}}"
-                      media="(width > 1024px)"
-                      srcset="{{- $small.RelPermalink -}}"
-                    />
-                  {{- end -}}
+          {{- $href := cond $featured $parent.Permalink $originalLink -}}
+          <a href="{{ $href }}" {{ if $featured }}class="card" aria-label="{{ printf "Open gallery: %s" $parent.Title }}"{{ else }}data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"{{ end }}>
+            <picture>
+              {{- with $small := index $resources "400" -}}
+                {{- with $medium := index $resources "800" -}}
+                  <source
+                    type="{{- $medium.MediaType.Type -}}"
+                    media="(width <= 1024px)"
+                    srcset="{{- $medium.RelPermalink -}}"
+                  />
+                  <source
+                    type="{{- $small.MediaType.Type -}}"
+                    media="(width > 1024px)"
+                    srcset="{{- $small.RelPermalink -}}"
+                  />
                 {{- else -}}
-                  {{- with $medium := index $resources "800w" -}}
-                    <source
-                      type="{{- $medium.MediaType.Type -}}"
-                      media="(width <= 1024px)"
-                      srcset="{{- $medium.RelPermalink -}}"
-                    />
-                  {{- end -}}
+                  <source
+                    type="{{- $small.MediaType.Type -}}"
+                    media="(width > 1024px)"
+                    srcset="{{- $small.RelPermalink -}}"
+                  />
                 {{- end -}}
-                <source
-                  type="{{- $original.MediaType.Type -}}"
-                  srcset="{{- $original.RelPermalink -}}"
-                />
-                {{- $imgSrc := $originalLink -}}
-                {{- with $alt := index $resources "alt" -}}
-                  {{- $imgSrc = $alt.RelPermalink -}}
+              {{- else -}}
+                {{- with $medium := index $resources "800w" -}}
+                  <source
+                    type="{{- $medium.MediaType.Type -}}"
+                    media="(width <= 1024px)"
+                    srcset="{{- $medium.RelPermalink -}}"
+                  />
                 {{- end -}}
-                <img
-                  loading="lazy"
-                  src="{{- $imgSrc -}}"
-                  alt="{{- $original.Name -}}"
-                />
-              </picture>
+              {{- end -}}
+              <source
+                type="{{- $original.MediaType.Type -}}"
+                srcset="{{- $original.RelPermalink -}}"
+              />
+              {{- $imgSrc := $originalLink -}}
+              {{- with $alt := index $resources "alt" -}}
+                {{- $imgSrc = $alt.RelPermalink -}}
+              {{- end -}}
+              <img
+                loading="lazy"
+                src="{{- $imgSrc -}}"
+                alt="{{- $original.Name -}}"
+              />
+            </picture>
+            {{- if $featured -}}
               <div class="card-overlay" aria-hidden="true">
                 <h3 class="card-title">{{- $parent.Title -}}</h3>
               </div>
-            </a>
-          {{- else -}}
-            {{- $anchorTarget := $original.RelPermalink -}}
-            <a
-              href="{{ $anchorTarget }}"
-              data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"
-            >
-              <picture>
-                {{- with $small := index $resources "400" -}}
-                  {{- with $medium := index $resources "800" -}}
-                    <source
-                      type="{{- $medium.MediaType.Type -}}"
-                      media="(width <= 1024px)"
-                      srcset="{{- $medium.RelPermalink -}}"
-                    />
-                    <source
-                      type="{{- $small.MediaType.Type -}}"
-                      media="(width > 1024px)"
-                      srcset="{{- $small.RelPermalink -}}"
-                    />
-                  {{- else -}}
-                    <source
-                      type="{{- $small.MediaType.Type -}}"
-                      media="(width > 1024px)"
-                      srcset="{{- $small.RelPermalink -}}"
-                    />
-                  {{- end -}}
-                {{- else -}}
-                  {{- with $medium := index $resources "800w" -}}
-                    <source
-                      type="{{- $medium.MediaType.Type -}}"
-                      media="(width <= 1024px)"
-                      srcset="{{- $medium.RelPermalink -}}"
-                    />
-                  {{- end -}}
-                {{- end -}}
-                <source
-                  type="{{- $original.MediaType.Type -}}"
-                  srcset="{{- $original.RelPermalink -}}"
-                />
-                {{- $imgSrc := $originalLink -}}
-                {{- with $alt := index $resources "alt" -}}
-                  {{- $imgSrc = $alt.RelPermalink -}}
-                {{- end -}}
-                <img
-                  loading="lazy"
-                  src="{{- $imgSrc -}}"
-                  alt="{{- $original.Name -}}"
-                />
-              </picture>
-            </a>
-          {{- end -}}
+            {{- end -}}
+          </a>
         </div>
       {{- end -}}
     {{- end -}}
