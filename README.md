@@ -33,7 +33,7 @@ Key points:
 3. The theme will (defaults):
    - Home (`/`): shows a root gallery (images at the content root) and a block per top‑level section. By default, each block displays the current bundle’s images and one featured thumbnail per immediate child gallery (both subsections and leaf bundles). Section titles link to their pages.
    - Single page: displays that page’s images in a grid below the content; thumbnails are not used.
-   - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.display.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
+   - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
    - Each set of images from a gallery will be enabled to be displayed in a lightbox. When `useFeaturedImages` is false, images displayed from child galleries will be displayed in a lightbox when clicked on. When `useFeaturedImages` is true, images from child galleries will be links to the child gallery.
 
 Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
@@ -112,8 +112,7 @@ This choice can be set site wide via the site configuration file or on a per sec
 [params]
   [params.modules]
     [params.modules.hugoImageGrid]
-      [params.modules.hugoImageGrid.display]
-        useFeaturedImages = true
+      useFeaturedImages = true
 ```
 
 To configure per-bundle in front matter (YAML), use:
@@ -123,8 +122,7 @@ To configure per-bundle in front matter (YAML), use:
 params:
   modules:
     hugoImageGrid:
-      display:
-        useFeaturedImages: true
+      useFeaturedImages: true
 ---
 ```
 
