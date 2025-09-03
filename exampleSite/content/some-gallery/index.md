@@ -1,3 +1,0 @@
----
-title: "A gallery title"
----
