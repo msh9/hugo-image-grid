@@ -132,10 +132,17 @@ The front matter configuration overrides the site configuration for that bundle 
 
 #### Featured image gallery cards
 
-When `useFeaturedImages` is enable images are displayed within a card view in the gallery gird. The card view has two purposes,
+When `useFeaturedImages` is enabled, each immediate child gallery is represented by a featured image shown as a “card” in the grid. The card displays the child gallery’s title in an overlay, and both the title and the entire card link to the child gallery. Non‑featured images continue to open in a lightbox.
 
-1. Display the title of the linked child gallery
-2. Highlight that the image is a *featured* image that links to a gallery, instead of displaying a lightbox.
+You can customize card sizing and readability via CSS variables (set in your site CSS if you want to override the defaults):
+
+- `--hig-card-min-width`: minimum card width (default `260px`)
+- `--hig-card-min-height`: minimum card height (default `180px`)
+- `--hig-card-title-height`: overlay title bar height (default `56px`)
+- `--hig-card-overlay-bg`: overlay background color (supports alpha)
+- `--hig-card-title-color`: overlay title text color
+
+These card styles apply only to featured thumbnails for immediate child galleries. Root images and regular in‑bundle images keep their existing behavior and lightbox interactions.
 
 ### Home page root images
 
