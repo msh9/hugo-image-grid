@@ -38,12 +38,7 @@ Key points:
 
 Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
 
-### Image discovery and grid defaults
-
-- Images are discovered only via page resources
-- No image processing or transforms are performed.
-
-### Size aware images
+## Size aware images
 
 The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Supply optional width-suffixed variants alongside your original image.
 
@@ -69,7 +64,7 @@ photo4.jpg
 photo4-800h.jpg
 ```
 
-### Alternate fallback format
+## Alternate fallback format
 
 Optionally provide a backup file format using an `-alt` suffix on the same basename. 
 
@@ -95,7 +90,7 @@ photo4.jpg
 photo4-800h.jpg
 ```
 
-###  Gallery Featured Image(s)
+##  Gallery Featured Image(s)
 
 hugo-image-grid treats page and section bundles as galleries within the directory structure. For example,
 
@@ -135,7 +130,14 @@ params:
 
 The front matter configuration overrides the site configuration for that bundle only. If not configured in either location, the theme defaults to using featured thumbnail images (i.e., `useFeaturedImages: true`).
 
-#### Home page root images
+#### Featured image gallery cards
+
+When `useFeaturedImages` is enable images are displayed within a card view in the gallery gird. The card view has two purposes,
+
+1. Display the title of the linked child gallery
+2. Highlight that the image is a *featured* image that links to a gallery, instead of displaying a lightbox.
+
+### Home page root images
 
 To display images that live at the content root on the home page, create a branch bundle at `content/_index.md`. Place your root images alongside that file, for example:
 
