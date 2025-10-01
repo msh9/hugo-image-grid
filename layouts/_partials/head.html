@@ -14,8 +14,8 @@
     <meta name="description" content="{{ . }}" />
   {{- end -}}
   <script
-    defer
-    src="{{ (resources.Get "js/lightbox-plus-jquery.min.js").Permalink }}"
+    type="module"
+    src="{{ (resources.Get "js/lightbox-jquery.module.min.js").Permalink }}"
   ></script>
   {{ partial "head-custom.html" . }}
 </head>
