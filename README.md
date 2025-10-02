@@ -5,7 +5,7 @@ Renders images into a center aligned grid with a modal lightbox.
 Key points:
 - No image processing or resizing (serves original files).
 - Image lightbox using [Lightbox2 with tags](https://github.com/msh9/lightbox2)
-  - Currently using v3.0.3
+  - Currently using v3.0.4
 
 ## Usage
 
