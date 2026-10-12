@@ -5,8 +5,12 @@
 
 ## Project Structure & Module Organization
 - Theme root: Hugo templates in `layouts/` (Go HTML templates).
-- Partials: `layouts/_partials/` (e.g., `image-grid.html`, `home-grid-items.html`, `list-grid-items.html`, `single-grid-items.html`).
-- Pages: `layouts/home.html`, `layouts/list.html`, `layouts/single.html`, `layouts/baseof.html`, `layouts/section.html`
+- Partials: `layouts/_partials/`
+  - `image-grid.html`: renders normalized items.
+  - `process-image.html`: processes one image into AVIF/JPG renditions and resolves alt text.
+  - `prepare-bundle-images.html`, `prepare-feature-image.html`, `prepare-children-featured-items.html`: assemble normalized items for the grid.
+  - `use-featured-images.html`: resolves the `useFeaturedImages` setting.
+- Pages: `layouts/home.html`, `layouts/list.html`, `layouts/single.html`, `layouts/baseof.html`
 - Assets: CSS in `assets/css/` (e.g., `theme.css`). 
 - Static: For static assets used by third party libraries provided with theme and in-theme static assets that do not require hugo asset pipeline processing
 - exampleSite: Contains a small example site for development testing and demonstrating the theme. 
