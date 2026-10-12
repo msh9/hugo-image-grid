@@ -1,10 +1,10 @@
 # hugo-image-grid (Hugo theme)
 
-Renders images into a center aligned grid with a modal lightbox.
+Opinionated theme that renders images into a center aligned grid with a modal lightbox.
 
 Key points:
-- Simple HTML/CSS brick-like layout (see (Photos @ michaelonrandom)[https://photos.michaelonrandom.com] for example)
-- Inputs are generally expected to be high resolution, high quality, photographic images which the theme with resize and encode to avif with jpg backups.
+- Simple HTML/CSS brick-like layout with two different row heights based on device viewing size (see (Photos @ michaelonrandom)[https://photos.michaelonrandom.com] for example)
+- Inputs are generally expected to be high resolution, high quality, photographic images which the theme with resize and encode to avif with jpg backups. Images should be in [Hugo processable format](https://gohugo.io/quick-reference/glossary/#processable-image).
 - If present, the theme will attempt to use image metadata to provide contextual information. At this time, we look for 'title' and 'copyright' fields.
 - Image lightbox using [Lightbox2 with tags](https://github.com/msh9/lightbox2)
   - Currently using v3.0.4
@@ -39,59 +39,15 @@ Key points:
    - Each set of images from a gallery will be enabled to be displayed in a lightbox. When `useFeaturedImages` is false, images displayed from child galleries will be displayed in a lightbox when clicked on. When `useFeaturedImages` is true, images from child galleries will be links to the child gallery.
    - The lightbox will attempt to read image tag data in browser. Tags for 'title' and 'Copyright' are checked and, if present, displayed in the lightbox. An example of this can be seen in the example site under 'another gallery' and 'ImgD'.
 
-Alt text comes from the image resource name (`.Name` in Hugo). If no explicit name is provided, this is the original filename (including extension). 
+Alt text comes from the image 'caption' metadata followed by the resource name (`.Name` in Hugo) as a backup.
 
 ## Size aware images
 
-The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Supply optional width-suffixed variants alongside your original image.
-
-How it works:
-- Provide up to three files per image within the same bundle: the original, 400h, and 800h variants.
-- Naming:
-  - Original: `<base>.<ext>`
-  - 400px tall: `<base>-400h.<ext>`
-  - 800px tall: `<base>-800h.<ext>`
-- You can provide fewer than three, e.g. the original and just a `-400h` variant.
-
-Example:
-
-```
-/exampleSite/content/myalbum/
-picture1.avif
-picture1-400h.avif
-photo2.webp
-photo3.jpg
-photo3-400h.jpg
-photo3-800h.jpg
-photo4.jpg
-photo4-800h.jpg
-```
+The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Images are processed by hugo and delivered using HTML srcsets as AVIF by default with a JPG backup; we avoid webp due to a longstanding implementation bug that inadvertently changes the image contrast. Quality and encoder hints can be set via Hugo's builtin [image processing configuration](https://gohugo.io/configuration/imaging/) otherwise Hugo defaults are used.
 
 ## Alternate fallback format
 
-Optionally provide a backup file format using an `-alt` suffix on the same basename. 
-
-Rules:
-- Fallback format: `<base>-alt.<ext>`, e.g. `photo-alt.jpg` as a fallback for `photo.avif`.
-- Fallbacks are not used for size-aware delivery; only the primary format’s width variants (`-400h`, `-800h`) are considered for the `<source>` `srcset`.
-- Width-specific fallbacks (e.g., `photo-400h-alt.jpg`) are not read.
-
-Example:
-
-```
-/exampleSite/content/myalbum/
-picture1.avif
-picture1-alt.jpg        # fallback format (with -alt suffix)
-picture1-400h.avif
-picture1-800h.avif
-photo2.webp
-photo3.avif
-photo3-alt.png          # fallback format
-photo3-400h.avif
-photo3-800h.avif
-photo4.jpg
-photo4-800h.jpg
-```
+By default the theme generates a backup JPG image.
 
 ##  Gallery Featured Image(s)
 
