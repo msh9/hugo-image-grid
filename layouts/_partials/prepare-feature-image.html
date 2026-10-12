@@ -32,8 +32,8 @@
 {{ $outputImage := dict }}
 {{/* We use range here because we're dealing with a dict collection even though there should only be 1 element */}}
 {{ range $baseName, $resources := $featuredImage }}
-  {{ $smallGlob := printf "%s-400w.*" $baseName }}
-  {{ $mediumGlob := printf "%s-800w.*" $baseName }}
+  {{ $smallGlob := printf "%s-400h.*" $baseName }}
+  {{ $mediumGlob := printf "%s-800h.*" $baseName }}
   {{ $altGlob := printf "%s-alt.*" $baseName }}
   {{ $small := $.Resources.GetMatch $smallGlob }}
   {{ $medium := $.Resources.GetMatch $mediumGlob }}

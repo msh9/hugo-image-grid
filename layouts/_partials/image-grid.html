@@ -44,7 +44,7 @@
                   />
                 {{- end -}}
               {{- else -}}
-                {{- with $medium := index $resources "800w" -}}
+                {{- with $medium := index $resources "800" -}}
                   <source
                     type="{{- $medium.MediaType.Type -}}"
                     media="(width <= 1024px)"
