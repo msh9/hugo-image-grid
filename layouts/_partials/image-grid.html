@@ -9,6 +9,9 @@
   user agents without AVIF support. The renditions follow the row heights
   set in theme.css: 640px tall at or below 1024px viewport width and 320px
   tall above it, each at 1x and 2x pixel density.
+
+  The img width and height attributes only provide the aspect ratio used to
+  reserve space before the image loads; theme.css sets the rendered size.
 */}}
 
 
@@ -49,9 +52,12 @@
                   "
                 />
               {{- end -}}
+              {{- $fallback := index $resources "jpg" "640" -}}
               <img
                 loading="lazy"
-                src="{{- (index $resources "jpg" "640").RelPermalink -}}"
+                src="{{- $fallback.RelPermalink -}}"
+                width="{{- $fallback.Width -}}"
+                height="{{- $fallback.Height -}}"
                 alt="{{- index $resources "alt" -}}"
               />
             </picture>
