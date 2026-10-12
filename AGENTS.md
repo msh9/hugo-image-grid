@@ -24,7 +24,7 @@
 - Indentation: 2 spaces; keep templates readable and minimal.
 - Hugo templates: Prefer partials and normalized inputs. Business logic in helpers; presentation in components.
 - CSS: Component‑scoped rules; avoid heavy frameworks. Use semantic class names.
-- Images: Do not add Hugo image processing. 
+- ~~Images: Do not add Hugo image processing.~~ Changing as of Fall, 2026 due to Hugo now supporting AVIF via a WASM plugin. We'll be making changes to hugo-image-grid to support avif with a jpg fallback. This will also mean that we can support more build time photo processing, simplify gallery inputs, and extract exif data ahead of time.
 
 ## Testing Guidelines
 - No formal test suite. Validate by running `hugo build --ignoreCache` within the `exampleSite` folder and inspecting output for errors.

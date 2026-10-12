@@ -158,5 +158,4 @@ Those images are treated as the root gallery and are always shown on the home pa
 
 ## Limitations
 
-- Currently no exif information is displayed within the gallery or lightbox
 - The lightbox implementation does not support fallback image formats
