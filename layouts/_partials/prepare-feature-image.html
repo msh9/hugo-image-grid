@@ -1,58 +1,26 @@
-{{/* prepare-feature-image: returns a normalized slice of dict items
-  for rendering by image-grid.html. This partial handles capturing a single featured image from a bundle instead of all images
+{{/* prepare-feature-image: returns a normalized dictionary with a single item
+  for rendering by image-grid.html. This partial handles capturing a single featured image from a bundle instead of all images.
 
-  Naming conventions handled here:
-  - Size variants (same extension):
-  <base>-400h.<ext>, <base>-800h.<ext>
-  - Primary/original (same extension):
-  <base>.<ext>
-  - Fallback format:
-  <base>-alt.<ext>
+  The featured image is the first processable image in the bundle by name.
 
   Input:
   - page/section/etc to get resources from as .
 
   Output item shape (normalized):
-  - Dictionary of <pageName><base> -->
-  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, parent --> Page/Section/etc, featuredImage --> bool
+  - Dictionary of <pageName><file name> -->
+  - Dictionary of "original" --> Resource, "alt" --> string, "avif" --> Dictionary, "jpg" --> Dictionary, "parent" --> Page/Section/etc, "featuredImage" --> bool
+  (see process-image.html for the "avif" and "jpg" shapes)
 */}}
 
-{{ $featuredImage := dict }}
+{{ $outputImage := dict }}
 
 {{ $sortedImageResources := sort (.Resources.ByType "image") ".Name" "asc" }}
 {{ range $sortedImageResources }}
-  {{ $fileName := path.Base .Key }}
-  {{ $isSpecial := findRE `^(.+)-(400h)?(800h)?(alt)?\.([^.]+)$` $fileName }}
-  {{ if not $isSpecial }}
-    {{ $featuredImage = $featuredImage | merge (dict (.Key | path.BaseName) (dict "original" . "parent" $ "featuredImage" true)) }}
+  {{ if reflect.IsImageResourceProcessable . }}
+    {{ $item := merge (partial "process-image.html" .) (dict "parent" $ "featuredImage" true) }}
+    {{ $outputImage = dict (printf "%s%s" $.Name (path.Base .Key)) $item }}
     {{ break }}
   {{ end }}
-{{ end }}
-
-{{ $outputImage := dict }}
-{{/* We use range here because we're dealing with a dict collection even though there should only be 1 element */}}
-{{ range $baseName, $resources := $featuredImage }}
-  {{ $smallGlob := printf "%s-400h.*" $baseName }}
-  {{ $mediumGlob := printf "%s-800h.*" $baseName }}
-  {{ $altGlob := printf "%s-alt.*" $baseName }}
-  {{ $small := $.Resources.GetMatch $smallGlob }}
-  {{ $medium := $.Resources.GetMatch $mediumGlob }}
-  {{ $alt := $.Resources.GetMatch $altGlob }}
-
-  {{ $finalResource := $resources }}
-  {{ with $small }}
-    {{ $finalResource = $finalResource | merge (dict "400" .) }}
-  {{ end }}
-
-  {{ with $medium }}
-    {{ $finalResource = $finalResource | merge (dict "800" .) }}
-  {{ end }}
-
-  {{ with $alt }}
-    {{ $finalResource = $finalResource | merge (dict "alt" .) }}
-  {{ end }}
-
-  {{ $outputImage = $outputImage | merge (dict (printf "%s%s" $.Name $baseName) $finalResource) }}
 {{ end }}
 
 {{ return $outputImage }}

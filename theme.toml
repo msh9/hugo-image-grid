@@ -1,10 +1,10 @@
 name = "hugo-image-grid"
 license = "MIT"
 licenselink = "https://opensource.org/licenses/MIT"
-description = "A minimal no-processing image grid theme for Hugo."
+description = "A minimal image grid theme for Hugo that resizes photos to AVIF with JPG fallbacks."
 homepage = "https://github.com/msh9/hugo-image-grid"
 tags = ["gallery", "photos", "grid", "minimal"]
-min_version = "0.146.0"
+min_version = "0.163.0"
 
 [author]
   name = "Michael Hughes"

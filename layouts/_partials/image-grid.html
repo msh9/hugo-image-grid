@@ -2,7 +2,13 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-  - Dictionary of "original" --> Resource, "400"? --> Resource, "800"? --> Resource, "alt"? --> Resource, "baseFileName" --> <base>, "parent" --> Page/Section/etc, "featuredImage"? --> bool
+  - Dictionary of "original" --> Resource, "alt" --> string, "avif" --> Dictionary, "jpg" --> Dictionary, "parent" --> Page/Section/etc, "featuredImage"? --> bool
+  (see process-image.html for the "avif" and "jpg" shapes)
+
+  Sources are listed AVIF first so that the JPG renditions are only used by
+  user agents without AVIF support. The renditions follow the row heights
+  set in theme.css: 640px tall at or below 1024px viewport width and 320px
+  tall above it, each at 1x and 2x pixel density.
 */}}
 
 
@@ -24,46 +30,29 @@
             {{ end }}
           >
             <picture>
-              {{- with $small := index $resources "400" -}}
-                {{- with $medium := index $resources "800" -}}
-                  <source
-                    type="{{- $medium.MediaType.Type -}}"
-                    media="(width <= 1024px)"
-                    srcset="{{- $medium.RelPermalink -}}"
-                  />
-                  <source
-                    type="{{- $small.MediaType.Type -}}"
-                    media="(width > 1024px)"
-                    srcset="{{- $small.RelPermalink -}}"
-                  />
-                {{- else -}}
-                  <source
-                    type="{{- $small.MediaType.Type -}}"
-                    media="(width > 1024px)"
-                    srcset="{{- $small.RelPermalink -}}"
-                  />
-                {{- end -}}
-              {{- else -}}
-                {{- with $medium := index $resources "800" -}}
-                  <source
-                    type="{{- $medium.MediaType.Type -}}"
-                    media="(width <= 1024px)"
-                    srcset="{{- $medium.RelPermalink -}}"
-                  />
-                {{- end -}}
-              {{- end -}}
-              <source
-                type="{{- $original.MediaType.Type -}}"
-                srcset="{{- $original.RelPermalink -}}"
-              />
-              {{- $imgSrc := $originalLink -}}
-              {{- with $alt := index $resources "alt" -}}
-                {{- $imgSrc = $alt.RelPermalink -}}
+              {{- range $format := slice "avif" "jpg" -}}
+                {{- $set := index $resources $format -}}
+                <source
+                  type="{{- (index $set "640").MediaType.Type -}}"
+                  media="(width <= 1024px)"
+                  srcset="
+                    {{- (index $set "640").RelPermalink }} 1x,
+                    {{ (index $set "1280").RelPermalink }} 2x
+                  "
+                />
+                <source
+                  type="{{- (index $set "320").MediaType.Type -}}"
+                  media="(width > 1024px)"
+                  srcset="
+                    {{- (index $set "320").RelPermalink }} 1x,
+                    {{ (index $set "640").RelPermalink }} 2x
+                  "
+                />
               {{- end -}}
               <img
                 loading="lazy"
-                src="{{- $imgSrc -}}"
-                alt="{{- $original.Name -}}"
+                src="{{- (index $resources "jpg" "640").RelPermalink -}}"
+                alt="{{- index $resources "alt" -}}"
               />
             </picture>
             {{- if $featured -}}
