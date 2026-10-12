@@ -30,10 +30,10 @@
 - No formal test suite. Validate by running `hugo build --ignoreCache` within the `exampleSite` folder and inspecting output for errors.
 
 ## Commit & Pull Request Guidelines
+- New work and features occur on branches that are only merged to main after local validation and a PR review on github
 - Commits: Small, focused, imperative subject lines (e.g., "Refactor home grid items").
 - PRs: Describe intent, scope, and user impact; link issues; include before/after screenshots for UI changes.
 
 ## Agent-Specific Instructions
 - Single Responsibility: `image-grid.html` renders normalized items only; helper partials assemble data.
-- Do not introduce new dependencies or image processing.
 - Maintain accessibility: meaningful `alt`, semantic markup, no regressions.

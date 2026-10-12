@@ -3,7 +3,9 @@
 Renders images into a center aligned grid with a modal lightbox.
 
 Key points:
-- No image processing or resizing (serves original files).
+- Simple HTML/CSS brick-like layout (see (Photos @ michaelonrandom)[https://photos.michaelonrandom.com] for example)
+- Inputs are generally expected to be high resolution, high quality, photographic images which the theme with resize and encode to avif with jpg backups.
+- If present, the theme will attempt to use image metadata to provide contextual information. At this time, we look for 'title' and 'copyright' fields.
 - Image lightbox using [Lightbox2 with tags](https://github.com/msh9/lightbox2)
   - Currently using v3.0.4
 
