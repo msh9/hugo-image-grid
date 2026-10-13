@@ -14,7 +14,7 @@
     <meta name="description" content="{{ . }}" />
   {{- end -}}
   <script type="module">
-    import lightbox from "{{ (resources.Get "js/lightbox-jquery.module.min.js").Permalink }}";
+    import lightbox from "{{ (resources.Get "js/lightbox.module.js").Permalink }}";
     lightbox.init();
   </script>
   {{ partial "head-custom.html" . }}

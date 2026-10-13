@@ -5,9 +5,9 @@ Opinionated theme that renders images into a center aligned grid with a modal li
 Key points:
 - Simple HTML/CSS brick-like layout with two different row heights based on device viewing size (see (Photos @ michaelonrandom)[https://photos.michaelonrandom.com] for example)
 - Inputs are generally expected to be high resolution, high quality, photographic images which the theme will resize and encode to avif with jpg backups. Images should be in [Hugo processable format](https://gohugo.io/quick-reference/glossary/#processable-image).
-- If present, the theme will attempt to use image metadata to provide contextual information. At this time, we look for 'title' and 'copyright' fields.
+- If present, the theme uses image metadata to provide contextual information in the lightbox: title, caption, and copyright.
 - Image lightbox using [Lightbox2 with tags](https://github.com/msh9/lightbox2)
-  - Currently using v3.0.4
+  - Currently using v4
 
 ## Usage
 
@@ -37,15 +37,22 @@ Key points:
    - Single page: displays that page’s images in a grid below the content; thumbnails are not used.
    - List/section page: by default, displays the current bundle’s images and one featured thumbnail per immediate child gallery. Set `params.modules.hugoImageGrid.useFeaturedImages` to `false` (site‑wide or per bundle) to show all photos from immediate child galleries instead.
    - Each set of images from a gallery will be enabled to be displayed in a lightbox. When `useFeaturedImages` is false, images displayed from child galleries will be displayed in a lightbox when clicked on. When `useFeaturedImages` is true, images from child galleries will be links to the child gallery.
-   - The lightbox will attempt to read image tag data in browser. Tags for 'title' and 'Copyright' are checked and, if present, displayed in the lightbox. An example of this can be seen in the example site under 'another gallery' and 'ImgD'.
+   - Image metadata is read at build time and passed to the lightbox as `data-lb-*` attributes. If present, the title, caption, and copyright are displayed in the lightbox. An example of this can be seen in the example site under 'another gallery' and 'ImgD'.
 
-Alt text comes from the image's caption metadata: EXIF `ImageDescription`, then IPTC `Caption-Abstract`, then the resource name (`.Name` in Hugo) as a backup.
+Metadata fields are resolved in order, first match wins:
+
+- Caption: EXIF `ImageDescription`, then IPTC `Caption-Abstract`
+- Alt text: the caption, then the resource name (`.Name` in Hugo) as a backup
+- Title: IPTC `ObjectName`, then XMP `Title`
+- Copyright: EXIF `Copyright`, then IPTC `CopyrightNotice`
 
 ## Size aware images
 
 The theme uses HTML picture and source elements to help deliver (more) optimally sized images based on the rendered size of the gallery in the user agent. Images are processed by hugo and delivered using HTML srcsets as AVIF by default with a JPG backup; we avoid webp due to a longstanding implementation bug that inadvertently changes the image contrast. Quality and encoder hints can be set via Hugo's builtin [image processing configuration](https://gohugo.io/configuration/imaging/) otherwise Hugo defaults are used.
 
-Each image is resized to 320px, 640px, and 1280px tall, matching the grid's row heights at 1x and 2x pixel density. Images are never upscaled. Images with an EXIF orientation are rotated before resizing. Files that Hugo cannot process (e.g. SVG) are skipped with a build warning. The lightbox opens the original, unprocessed file.
+Each image is resized to 320px, 640px, and 1280px tall, matching the grid's row heights at 1x and 2x pixel density. Images are never upscaled. Images with an EXIF orientation are rotated before resizing. Files that Hugo cannot process (e.g. SVG) are skipped with a build warning.
+
+The lightbox opens an AVIF rendition scaled down to fit within 2560x2560, with a JPG of the same dimensions as the fallback for user agents that cannot decode AVIF.
 
 ## Alternate fallback format
 
@@ -115,7 +122,3 @@ content/
 ```
 
 Those images are treated as the root gallery and are always shown on the home page. The `useFeaturedImages` setting only affects how immediate child galleries are represented (featured tiles vs full grids), not whether root images are shown.
-
-## Limitations
-
-- The lightbox implementation does not support fallback image formats
