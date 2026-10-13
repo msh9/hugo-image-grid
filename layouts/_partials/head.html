@@ -16,6 +16,5 @@
   <script type="module">
     import lightbox from "{{ (resources.Get "js/lightbox.module.js").Permalink }}";
     lightbox.init();
-  </script>
-  {{ partial "head-custom.html" . }}
+  </script> {{ partial "head-custom.html" . }}
 </head>
