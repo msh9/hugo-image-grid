@@ -7,30 +7,41 @@
   Images with an EXIF orientation are rotated before resizing because
   processed renditions do not retain metadata.
 
-  Alt text is taken from EXIF ImageDescription, then IPTC Caption-Abstract,
-  then the resource name.
+  A lightbox rendition is also generated in AVIF and JPG, scaled down to fit
+  within 2560x2560. Both share the same dimensions so the JPG can stand in
+  for the AVIF in user agents that cannot decode it.
+
+  Caption is taken from EXIF ImageDescription, then IPTC Caption-Abstract.
+  Alt text is the caption, falling back to the resource name. Title is taken
+  from IPTC ObjectName, then XMP Title. Copyright is taken from EXIF
+  Copyright, then IPTC CopyrightNotice. Title, caption, and copyright are
+  empty strings when the metadata is missing.
 
   Input:
   - image resource as .
 
   Output (empty dict and a build warning when the image is not processable):
   - Dictionary of "original" --> Resource, "alt" --> string,
-  "avif" --> Dictionary of "320"/"640"/"1280" --> Resource,
-  "jpg" --> Dictionary of "320"/"640"/"1280" --> Resource
+  "title" --> string, "caption" --> string, "copyright" --> string,
+  "avif" --> Dictionary of "320"/"640"/"1280"/"lightbox" --> Resource,
+  "jpg" --> Dictionary of "320"/"640"/"1280"/"lightbox" --> Resource
 */}}
 
 {{ $result := dict }}
 {{ if reflect.IsImageResourceProcessable . }}
   {{ $src := . }}
-  {{ $alt := .Name }}
+  {{ $title := "" }}
+  {{ $caption := "" }}
+  {{ $copyright := "" }}
   {{ with .Meta }}
     {{ if gt .Orientation 1 }}
       {{ $src = $src.Filter images.AutoOrient }}
     {{ end }}
-    {{ with or (index .Exif "ImageDescription") (index .IPTC "Caption-Abstract") }}
-      {{ $alt = . }}
-    {{ end }}
+    {{ $title = or (index .IPTC "ObjectName") (index .XMP "Title") "" }}
+    {{ $caption = or (index .Exif "ImageDescription") (index .IPTC "Caption-Abstract") "" }}
+    {{ $copyright = or (index .Exif "Copyright") (index .IPTC "CopyrightNotice") "" }}
   {{ end }}
+  {{ $alt := or $caption .Name }}
 
   {{ $avif := dict }}
   {{ $jpg := dict }}
@@ -39,8 +50,18 @@
     {{ $avif = merge $avif (dict (string .) ($src.Process (printf "resize x%d avif" $height))) }}
     {{ $jpg = merge $jpg (dict (string .) ($src.Process (printf "resize x%d jpg" $height))) }}
   {{ end }}
+  {{ $avif = merge $avif (dict "lightbox" ($src.Process "fit 2560x2560 avif")) }}
+  {{ $jpg = merge $jpg (dict "lightbox" ($src.Process "fit 2560x2560 jpg")) }}
 
-  {{ $result = dict "original" . "alt" $alt "avif" $avif "jpg" $jpg }}
+  {{ $result = dict
+    "original" .
+    "alt" $alt
+    "title" (string $title)
+    "caption" (string $caption)
+    "copyright" (string $copyright)
+    "avif" $avif
+    "jpg" $jpg
+  }}
 {{ else }}
   {{ warnf "hugo-image-grid: skipping %q, it is not an image Hugo can process" .RelPermalink }}
 {{ end }}

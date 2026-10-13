@@ -2,8 +2,12 @@
 
   Note well that the key values are discarded.
   - Dictionary of <__> -->
-  - Dictionary of "original" --> Resource, "alt" --> string, "avif" --> Dictionary, "jpg" --> Dictionary, "parent" --> Page/Section/etc, "featuredImage"? --> bool
+  - Dictionary of "original" --> Resource, "alt"/"title"/"caption"/"copyright" --> string, "avif" --> Dictionary, "jpg" --> Dictionary, "parent" --> Page/Section/etc, "featuredImage"? --> bool
   (see process-image.html for the "avif" and "jpg" shapes)
+
+  Lightbox links point at the AVIF lightbox rendition with the same sized JPG
+  as the fallback, and pass dimensions and any title, caption, and copyright
+  metadata as data-lb-* attributes for Lightbox2 v4.
 
   Sources are listed AVIF first so that the JPG renditions are only used by
   user agents without AVIF support. The renditions follow the row heights
@@ -21,8 +25,8 @@
       {{- with $parent := index $resources "parent" -}}
         {{- $featured := index $resources "featuredImage" -}}
         <div class="grid-item {{ if $featured }}grid-item-card{{ end }}">
-          {{- $originalLink := $original.RelPermalink -}}
-          {{- $href := cond $featured $parent.Permalink $originalLink -}}
+          {{- $lightbox := index $resources "avif" "lightbox" -}}
+          {{- $href := cond $featured $parent.Permalink $lightbox.RelPermalink -}}
           <a
             href="{{ $href }}"
             {{ if $featured }}
@@ -30,6 +34,18 @@
               aria-label="{{ printf "Open gallery: %s" $parent.Title }}"
             {{ else }}
               data-lightbox="{{- printf "%s-gallery" $parent.Title -}}"
+              data-lb-href-fallback="{{- (index $resources "jpg" "lightbox").RelPermalink -}}"
+              data-lb-width="{{- $lightbox.Width -}}"
+              data-lb-height="{{- $lightbox.Height -}}"
+              {{ with index $resources "title" }}
+                data-lb-title="{{ . }}"
+              {{ end }}
+              {{ with index $resources "caption" }}
+                data-lb-caption="{{ . }}"
+              {{ end }}
+              {{ with index $resources "copyright" }}
+                data-lb-copyright="{{ . }}"
+              {{ end }}
             {{ end }}
           >
             <picture>

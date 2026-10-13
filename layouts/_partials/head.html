@@ -13,9 +13,8 @@
   {{- with site.Params.description -}}
     <meta name="description" content="{{ . }}" />
   {{- end -}}
-  <script
-    type="module"
-    src="{{ (resources.Get "js/lightbox-jquery.module.min.js").Permalink }}"
-  ></script>
-  {{ partial "head-custom.html" . }}
+  <script type="module">
+    import lightbox from "{{ (resources.Get "js/lightbox.module.js").Permalink }}";
+    lightbox.init();
+  </script> {{ partial "head-custom.html" . }}
 </head>

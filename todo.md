@@ -1,3 +1,2 @@
 # TODO
 
-(1) Replace lightbox with [photoswipe](https://github.com/dimsemenov/PhotoSwipe) v5.4.4. Photoswipe is more capable and supports generating [HTML source sets in the lightbox](https://photoswipe.com/getting-started/#responsive-images-with-srcset) out of the box. We can do this now since we now process photos during build we know their dimensions ahead of time which photoswipe requires. Addition. For titles and copyright metadata we can expand very slight on the example already given by {photoswipe here](https://photoswipe.com/caption/). We should rely on setting the photo metadata as either aria- or data- HTML tag attributes so that we don't process image metadata client side.
